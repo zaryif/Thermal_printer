@@ -1,0 +1,18 @@
+{
+  "name": "Thermal Print Studio",
+  "short_name": "ThermalStudio",
+  "description": "Professional Thermal Receipt & Schedule Designer for Bluetooth Thermal Printers",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

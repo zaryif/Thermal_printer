@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Thermal Studio</string>
+    <string name="title_activity_main">Thermal Studio</string>
+    <string name="package_name">com.thermalprint.studio</string>
+    <string name="custom_url_scheme">com.thermalprint.studio</string>
+</resources>
