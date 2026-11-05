@@ -4,6 +4,8 @@
 
 // Common Bluetooth Low Energy Service & Characteristic UUIDs for POS & Thermal Printers
 const PRINTER_SERVICES = [
+  '0000ae30-0000-1000-8000-00805f9b34fb', // X5, X5h, Cat / WalkPrint / FunPrint BLE
+  '0000ae3a-0000-1000-8000-00805f9b34fb', // X5h secondary service
   '000018f0-0000-1000-8000-00805f9b34fb', // Standard Printer Service
   'e7810a71-73ae-499d-8c15-faa9aef0c3f2', // Mini/Cat Thermal Printer Service
   '49535343-fe7d-41aa-8d12-3d79d358bac7', // Microchip ISSC Transparent UART
@@ -15,6 +17,8 @@ const PRINTER_SERVICES = [
 
 // Common writable characteristic UUIDs
 const WRITE_CHARACTERISTICS = [
+  '0000ae01-0000-1000-8000-00805f9b34fb', // X5, X5h Cat Printer Main Write
+  '0000ae3b-0000-1000-8000-00805f9b34fb', // X5h secondary write
   '00002af1-0000-1000-8000-00805f9b34fb',
   'bef8d6c9-9c21-4c9e-b632-bd58c1009f9f',
   '49535343-8841-43f4-a8d4-ecbe34429783',
@@ -175,8 +179,10 @@ export class BluetoothPrinterService {
     }
 
     if (this.connectionType === 'web-bluetooth') {
-      const chunkSize = 100; // Safe MTU size for cheap BLE chipsets
+      // Calibrated directly from Tiny Print APK (PrinterModelUtils.slowInterval = 50ms)
+      const chunkSize = 177;
       const total = data.length;
+      let chunkCount = 0;
 
       for (let i = 0; i < total; i += chunkSize) {
         const chunk = data.slice(i, i + chunkSize);
@@ -186,12 +192,18 @@ export class BluetoothPrinterService {
           await this.writeCharacteristic.writeValue(chunk);
         }
 
+        chunkCount++;
         if (onProgress) {
           onProgress(Math.min(100, Math.round(((i + chunk.length) / total) * 100)));
         }
 
-        // 20ms pause between chunks to let printer print head catch up
-        await new Promise((r) => setTimeout(r, 20));
+        // Tiny Print standard 50ms pacing per packet
+        await new Promise((r) => setTimeout(r, 50));
+
+        // Periodic breather to prevent internal hardware FIFO buffer overrun on long prints
+        if (chunkCount % 25 === 0) {
+          await new Promise((r) => setTimeout(r, 100));
+        }
       }
     } else if (this.connectionType === 'web-serial') {
       await this.serialWriter.write(data);

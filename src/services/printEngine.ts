@@ -1,5 +1,6 @@
 import html2canvas from 'html2canvas';
 import { EscPosEncoder } from './escposEncoder';
+import { encodeTinyPrintImage } from './tinyPrintEncoder';
 import { processImageForThermal } from './imageDithering';
 import { printerService } from './bluetoothService';
 import { PaperWidth } from '../types/printer';
@@ -10,7 +11,7 @@ export interface PrintResult {
 }
 
 /**
- * Converts the DOM receipt into an ESC/POS raster stream and prints via Bluetooth/Serial
+ * Converts the DOM receipt into an ESC/POS or Tiny Print raster stream and prints via Bluetooth/Serial
  */
 export async function printReceiptElement(
   element: HTMLElement,
@@ -34,31 +35,52 @@ export async function printReceiptElement(
     const processed = await processImageForThermal(
       canvas.toDataURL('image/png'),
       targetWidth,
-      'atkinson', // ultra-crisp for text & graphics
-      128,
-      1.2,
+      'threshold', // clean binarization matching Tiny Print
+      138,
+      1.1,
       0,
       false
     );
 
-    // 3. Encode into ESC/POS binary format
-    const encoder = new EscPosEncoder();
-    encoder.initialize();
-    encoder.align('center');
+    // 3. Determine printer protocol based on device name
+    const devName = (printerService.getConnectedDeviceName() || '').toLowerCase();
+    const isTinyPrintDevice =
+      devName.includes('x5') ||
+      devName.includes('x6') ||
+      devName.includes('cat') ||
+      devName.includes('tiny') ||
+      devName.includes('walk') ||
+      devName.includes('fun') ||
+      devName.includes('gb01') ||
+      devName.includes('print');
 
-    // Send chunked raster image (200-line vertical slices to avoid printer RAM buffer overflow)
-    encoder.chunkedRasterImage(
-      processed.width,
-      processed.height,
-      processed.binaryBits,
-      180
-    );
+    let payload: Uint8Array;
 
-    // Feed lines & cut
-    encoder.lineFeed(3);
-    encoder.cut(3);
+    if (isTinyPrintDevice) {
+      // Encode with Tiny Print 0x51 0x78 protocol (calibrated for high contrast & deep black)
+      payload = encodeTinyPrintImage(
+        processed.width,
+        processed.height,
+        processed.monoPixels || processed.binaryBits,
+        5
+      );
+    } else {
+      // Standard ESC/POS binary format
+      const encoder = new EscPosEncoder();
+      encoder.initialize();
+      encoder.align('center');
 
-    const payload = encoder.encode();
+      encoder.chunkedRasterImage(
+        processed.width,
+        processed.height,
+        processed.binaryBits,
+        180
+      );
+
+      encoder.lineFeed(3);
+      encoder.cut(3);
+      payload = encoder.encode();
+    }
 
     // 4. Send over connected printer connection
     if (printerService.isConnected()) {
@@ -101,3 +123,4 @@ export async function downloadReceiptPng(
   link.href = canvas.toDataURL('image/png');
   link.click();
 }
+

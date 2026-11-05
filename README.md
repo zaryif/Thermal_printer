@@ -7,10 +7,14 @@
 
 ## ✨ Features
 
-- 📅 **Google Calendar Daily Schedule Template**: 
-  - Import Google Calendar events via `.ics` file, copy-paste agenda, or Google Calendar plugin.
-  - Generates crisp timeline blocks, priority task checklists `[ ]`, and motivational banners.
-  - Interactive clickable checkboxes on the live thermal preview.
+- 📅 **Google Calendar Daily Schedule Integration**: 
+  - **Direct Google Sign-In**: 1-click Google OAuth 2.0 sync to pull live calendar events into your printable daily agenda.
+  - **Offline .ICS Import & Quick Paste**: Drag and drop any `.ics` export or paste text agendas without needing an API key.
+  - Generates crisp timeline blocks, priority task checklists `[ ]`, motivational quotes, and scannable Google Calendar QR codes.
+- ⚡ **Calibrated Tiny Print Hardware Protocol**:
+  - Reverse-engineered from Tiny Print APK 1.3.87 with exact CRC8 checksums and packet framing (`0x51 0x78`).
+  - Native LSB-first bit packing, calibrated Level 5 Deepen concentration (`9200` heating energy), and 50ms buffer pacing.
+  - Compact tear margin optimization (advances paper just past the tear blade without roll waste).
 - 🖼️ **Pixel-Perfect Thermal Dithering Engine**:
   - Upload photos and preview real-time binarization for thermal print heads.
   - Supported algorithms: **Atkinson** (Mac classic sharpness), **Floyd-Steinberg** (smooth grayscale), **Bayer 4x4 Matrix** (retro crosshatch), and **Pure Threshold**.
@@ -105,3 +109,4 @@ Outputs are placed into the `release/` folder.
 
 ## 📄 License
 MIT License. Created by MD. ZARIF AZFAR.
+

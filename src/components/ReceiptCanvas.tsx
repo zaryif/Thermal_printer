@@ -1,4 +1,5 @@
 import React from 'react';
+import QRCode from 'qrcode';
 import {
   ReceiptBlock,
   PaperWidth,
@@ -9,7 +10,8 @@ import {
   TaskListBlock,
   TableBlock,
   QrCodeBlock,
-  DividerBlock
+  DividerBlock,
+  FeedBlock
 } from '../types/printer';
 import {
   ChevronUp,
@@ -312,16 +314,16 @@ function renderBlock(
                     <Square className="w-3.5 h-3.5 text-stone-600" />
                   )}
                 </div>
-                <div className="flex-1 flex items-center justify-between">
+                <div className="flex-1 flex items-center justify-between min-w-0">
                   <span
-                    className={`text-[11px] ${
+                    className={`text-[11px] leading-snug pr-2 break-words ${
                       task.done ? 'line-through text-stone-400' : 'text-slate-900 font-medium'
                     }`}
                   >
                     {task.text}
                   </span>
                   {task.priority === 'high' && (
-                    <span className="text-[9px] font-bold px-1 rounded bg-stone-900 text-white">
+                    <span className="text-[9px] font-bold px-1 rounded bg-stone-900 text-white shrink-0">
                       HIGH
                     </span>
                   )}
@@ -373,12 +375,11 @@ function renderBlock(
 
       return (
         <div className={`flex flex-col my-2 py-1 ${alignClasses[b.align]}`}>
-          {/* QR code canvas is rendered by custom hook or SVG */}
-          <div className="p-1.5 bg-white border border-stone-300 rounded shadow-sm inline-block">
+          <div className="p-1 bg-white inline-block">
             <QrCodeImage text={b.data} size={b.size} />
           </div>
           {b.label && (
-            <p className="text-[10px] font-semibold text-stone-600 mt-1 uppercase tracking-wider">
+            <p className="text-[10px] font-bold text-stone-800 mt-1 uppercase tracking-wider">
               {b.label}
             </p>
           )}
@@ -389,7 +390,7 @@ function renderBlock(
     case 'divider': {
       const b = block as DividerBlock;
       return (
-        <div className="py-1.5 text-center text-stone-600 overflow-hidden select-none">
+        <div className="py-1.5 text-center text-stone-800 overflow-hidden select-none">
           {b.style === 'dashed' && <div className="border-t border-dashed border-stone-800 w-full" />}
           {b.style === 'dotted' && <div className="border-t border-dotted border-stone-800 w-full" />}
           {b.style === 'solid' && <div className="border-t-2 border-stone-900 w-full" />}
@@ -397,10 +398,10 @@ function renderBlock(
             <div className="border-t-4 border-double border-stone-900 w-full" />
           )}
           {b.style === 'stars' && (
-            <p className="text-[10px] tracking-[0.4em] text-stone-700 font-bold">* * * * * * *</p>
+            <p className="text-[10px] tracking-[0.4em] text-stone-900 font-bold">* * * * * * *</p>
           )}
           {b.style === 'cut' && (
-            <div className="flex items-center justify-center gap-2 text-[10px] text-stone-500 font-mono">
+            <div className="flex items-center justify-center gap-2 text-[10px] text-stone-700 font-mono">
               <span>-- - - - - - - - ✂ - - - - - - - --</span>
             </div>
           )}
@@ -409,7 +410,9 @@ function renderBlock(
     }
 
     case 'feed': {
-      return <div className="h-4" />;
+      const b = block as FeedBlock;
+      const heightPx = Math.max(24, (b.lines || 3) * 16);
+      return <div style={{ height: `${heightPx}px` }} className="w-full" />;
     }
 
     default:
@@ -425,17 +428,14 @@ const QrCodeImage: React.FC<{ text: string; size: number }> = ({ text, size }) =
 
   React.useEffect(() => {
     let isMounted = true;
-    import('qrcode')
-      .then((QRCode) => {
-        return QRCode.toDataURL(text || 'https://example.com', {
-          width: size,
-          margin: 1,
-          color: {
-            dark: '#000000',
-            light: '#ffffff'
-          }
-        });
-      })
+    QRCode.toDataURL(text || 'https://calendar.google.com', {
+      width: size,
+      margin: 1,
+      color: {
+        dark: '#000000',
+        light: '#ffffff'
+      }
+    })
       .then((url) => {
         if (isMounted) setDataUrl(url);
       })
@@ -459,5 +459,13 @@ const QrCodeImage: React.FC<{ text: string; size: number }> = ({ text, size }) =
     );
   }
 
-  return <img src={dataUrl} alt="QR Code" style={{ width: `${size}px`, height: `${size}px` }} />;
+  return (
+    <img
+      src={dataUrl}
+      alt="QR Code"
+      style={{ width: `${size}px`, height: `${size}px` }}
+      className="block"
+    />
+  );
 };
+

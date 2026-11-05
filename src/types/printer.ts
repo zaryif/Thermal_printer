@@ -129,3 +129,4 @@ export interface TemplateDefinition {
   paperWidth: PaperWidth;
   blocks: ReceiptBlock[];
 }
+

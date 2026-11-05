@@ -327,3 +327,4 @@ export const BluetoothModal: React.FC<BluetoothModalProps> = ({
     </div>
   );
 };
+

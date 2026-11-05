@@ -48,13 +48,13 @@ export const PRESET_TEMPLATES: TemplateDefinition[] = [
         title: 'TIME BLOCKS (GOOGLE CALENDAR)',
         date: new Date().toISOString().split('T')[0],
         items: [
-          { id: 's1', time: '08:30 AM', title: 'Morning Coffee & Agenda Sync', category: 'personal', done: true },
-          { id: 's2', time: '09:30 AM', title: 'Engineering Standup & Sprint', category: 'meeting', done: true },
-          { id: 's3', time: '11:00 AM', title: 'Deep Work: Core Architecture', category: 'work', done: false },
-          { id: 's4', time: '01:00 PM', title: 'Lunch & Fresh Air Break', category: 'health', done: false },
-          { id: 's5', time: '02:30 PM', title: 'Client Milestone Walkthrough', category: 'meeting', done: false },
-          { id: 's6', time: '04:30 PM', title: 'Code Review & QA Testing', category: 'work', done: false },
-          { id: 's7', time: '06:30 PM', title: 'Evening Workout & Cardio', category: 'health', done: false }
+          { id: 's1', time: '04:38 AM', title: 'Fajr Prayer & Early Focus', category: 'personal', done: true },
+          { id: 's2', time: '08:30 AM', title: 'Morning Review & Planning', category: 'work', done: true },
+          { id: 's3', time: '11:47 AM', title: 'Dhuhr Prayer & Lunch', category: 'personal', done: false },
+          { id: 's4', time: '01:30 PM', title: 'Midterm Study Sprint (3 Days Left!)', category: 'work', done: false },
+          { id: 's5', time: '03:07 PM', title: 'Asr Prayer & Problem Solving', category: 'personal', done: false },
+          { id: 's6', time: '05:38 PM', title: 'Maghrib Prayer & Wrap-up', category: 'personal', done: false },
+          { id: 's7', time: '06:53 PM', title: 'Isha Prayer & Evening Prep', category: 'personal', done: false }
         ]
       },
       {
@@ -67,10 +67,10 @@ export const PRESET_TEMPLATES: TemplateDefinition[] = [
         type: 'tasklist',
         title: 'TOP PRIORITIES & HABITS',
         items: [
-          { id: 't1', text: 'Deploy thermal print build', done: false, priority: 'high' },
-          { id: 't2', text: 'Sync calendar tasks with team', done: true, priority: 'medium' },
-          { id: 't3', text: 'Drink 2.5L water throughout day', done: false, priority: 'medium' },
-          { id: 't4', text: 'Inbox zero before logout', done: false, priority: 'low' }
+          { id: 't1', text: '[NOV 8] AIUB Midterm Exams Revision', done: false, priority: 'high' },
+          { id: 't2', text: 'Algorithms [Section B] Quiz Prep', done: false, priority: 'high' },
+          { id: 't3', text: 'Data Comm [Section A] Lab Report Sync', done: false, priority: 'medium' },
+          { id: 't4', text: 'Drink 2.5L water & 30m movement', done: false, priority: 'medium' }
         ]
       },
       {
@@ -89,7 +89,7 @@ export const PRESET_TEMPLATES: TemplateDefinition[] = [
       {
         id: 'feed1',
         type: 'feed',
-        lines: 3
+        lines: 6
       }
     ]
   },
@@ -222,3 +222,4 @@ export const PRESET_TEMPLATES: TemplateDefinition[] = [
     ]
   }
 ];
+

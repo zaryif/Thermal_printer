@@ -128,3 +128,4 @@ export class EscPosEncoder {
     return new Uint8Array(this.buffer);
   }
 }
+

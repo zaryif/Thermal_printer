@@ -865,3 +865,4 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
     </div>
   );
 };
+

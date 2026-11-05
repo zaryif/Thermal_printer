@@ -5,6 +5,7 @@ export interface ProcessedImageData {
   width: number;
   height: number;
   binaryBits: Uint8Array; // 1 byte per 8 pixels (MSB first) for ESC/POS GS v 0
+  monoPixels: Uint8Array; // 1 byte per pixel (0 = white, 1 = black)
 }
 
 /**
@@ -181,6 +182,8 @@ export async function processImageForThermal(
     previewDataUrl: canvas.toDataURL('image/png'),
     width: targetWidth,
     height: targetHeight,
-    binaryBits
+    binaryBits,
+    monoPixels: mono
   };
 }
+
