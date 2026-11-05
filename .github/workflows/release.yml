@@ -68,3 +68,4 @@ jobs:
             thermal-print-studio-web.zip
           draft: false
           prerelease: false
+

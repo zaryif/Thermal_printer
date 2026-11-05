@@ -1,112 +1,231 @@
 # 🖨️ Thermal Print Studio
 
-> **Universal Thermal Paper POS & Daily Schedule Designer** for Bluetooth & Serial thermal printers (58mm / 80mm / X5h pocket printers).  
-> Compatible with **Android (APK)**, **iOS (iPhone/iPad)**, **macOS**, **Windows**, and **Web PWA**.
+<div align="center">
+
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/zaryif/Thermal_printer/deploy.yml?branch=main&label=GitHub%20Pages%20Deploy&style=for-the-badge)
+![GitHub Release](https://img.shields.io/github/v/release/zaryif/Thermal_printer?style=for-the-badge&color=orange)
+![License](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)
+![Platforms](https://img.shields.io/badge/platforms-Web%20%7C%20Android%20%7C%20iOS%20%7C%20macOS%20%7C%20Windows-green?style=for-the-badge)
+
+**The Universal Pocket & POS Thermal Receipt Designer**  
+*Direct Google Calendar Sign-In • Calibrated Tiny Print Hardware Protocol • Multi-Platform PWA/Desktop/Mobile*
+
+[🌐 **Live Web App (GitHub Pages)**](https://zaryif.github.io/Thermal_printer/) • [📦 **Download Latest Release (v1.0.0)**](https://github.com/zaryif/Thermal_printer/releases/tag/v1.0.0) • [🐛 **Report an Issue**](https://github.com/zaryif/Thermal_printer/issues)
+
+</div>
 
 ---
 
-## ✨ Features
+## 🌟 Overview
 
-- 📅 **Google Calendar Daily Schedule Integration**: 
-  - **Direct Google Sign-In**: 1-click Google OAuth 2.0 sync to pull live calendar events into your printable daily agenda.
-  - **Offline .ICS Import & Quick Paste**: Drag and drop any `.ics` export or paste text agendas without needing an API key.
-  - Generates crisp timeline blocks, priority task checklists `[ ]`, motivational quotes, and scannable Google Calendar QR codes.
-- ⚡ **Calibrated Tiny Print Hardware Protocol**:
-  - Reverse-engineered from Tiny Print APK 1.3.87 with exact CRC8 checksums and packet framing (`0x51 0x78`).
-  - Native LSB-first bit packing, calibrated Level 5 Deepen concentration (`9200` heating energy), and 50ms buffer pacing.
-  - Compact tear margin optimization (advances paper just past the tear blade without roll waste).
-- 🖼️ **Pixel-Perfect Thermal Dithering Engine**:
-  - Upload photos and preview real-time binarization for thermal print heads.
-  - Supported algorithms: **Atkinson** (Mac classic sharpness), **Floyd-Steinberg** (smooth grayscale), **Bayer 4x4 Matrix** (retro crosshatch), and **Pure Threshold**.
-  - Interactive contrast, brightness, and negative-inversion controls.
-- 🧾 **POS Receipt & Label Designer**:
-  - Itemized receipt table with automatic subtotal, tax, and grand total alignment.
-  - Barcode and QR Code generator (custom URLs, WiFi, loyalty coupons).
-  - Customizable dividers: dashed, dotted, double-line, stars, and tear-off cut guides `✂`.
-- 📐 **Dual Paper Widths**:
-  - **58mm roll** (384 dots width - pocket printers, mini receipt rolls, X5h).
-  - **80mm roll** (576 dots width - commercial POS counters, kitchens).
-- 📡 **Universal Hardware Connectivity**:
-  - **Web Bluetooth (BLE)**: Connect directly in Chrome, Edge, and Android without drivers.
-  - **Web Serial / COM Port**: Direct communication over macOS/Windows paired Bluetooth SPP or USB-OTG.
-  - **System Print / AirPrint**: Zero-margin continuous thermal spooling via native OS print dialogs.
+**Thermal Print Studio** is an all-in-one thermal printing studio designed to bridge modern web & desktop workflows with pocket Bluetooth thermal printers and commercial POS terminals.
+
+Whether you are printing daily **Google Calendar agendas**, **midterm study planners**, **grocery/cafe receipts**, or **custom dithered artwork**, Thermal Print Studio delivers pixel-perfect contrast, native hardware speed, and zero wasted paper.
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Key Features
 
-### 1. Install & Run Locally
+### 📅 1. Google Calendar Integration
+- **Direct 1-Click Google Sign-In**: Authenticate via Google Identity Services (OAuth 2.0) to fetch live events from your primary Google Calendar.
+- **Automatic Smart Categorization**: Events are intelligently tagged into thematic color badges on your agenda:
+  - 🕌 **Prayers**: Fajr, Dhuhr, Jummah, Asr, Maghrib, Isha
+  - 📚 **Study & Exams**: Midterms, Quizzes, Lab Sprint, Code Practice
+  - 💼 **Meetings & Work**: Standup, Client Review, Zoom/Meet Sync
+  - 🏃 **Health & Personal**: Workout, Lunch, Break, Movement
+- **Offline `.ICS` Import & Quick Paste**: Drag and drop any exported `.ics` file (from Google Calendar, Apple Calendar, or Outlook) or paste a plain text agenda—no API key required!
+- **Receipt Extras**: Add a centered daily motivational quote, priority task checkboxes `[ ]`, and a high-resolution QR code linking directly to Google Calendar.
 
+---
+
+### ⚡ 2. Calibrated Tiny Print Protocol (Reverse-Engineered)
+Reverse-engineered directly from **Tiny Print APK (v1.3.87)** (`com.frogtosea.tinyPrint`):
+- **Exact Hardware Framing**: Native `0x51 0x78` packet encapsulation with CRC8 integrity verification.
+- **LSB-First Bit Packing**: Native hardware mapping where `bit 0 = Pixel 0` and `bit 7 = Pixel 7`, completely eliminating horizontal segment scrambling.
+- **Deep Concentration Level 5**: Heating energy calibrated to `9200` (`[0xF0, 0x23]`) and print speed set to `10` for deep, pitch-black lines without washed-out graying.
+- **Hardware Pacing Flow Control (`slowInterval: 50ms`)**: Throttled packet transmission (50ms interval + 100ms breather every 25 packets) that keeps the printer's 32KB FIFO buffer completely healthy, eliminating truncated receipts.
+- **Adaptive Luminance Threshold**: Uses Tiny Print's factory formula `threshold = mean_luminance - 13` for optimal thermal paper contrast.
+- **Compact Tear Alignment**: Precise stepper motor feeds (`0xA1` & `0xBD`) push the receipt neatly past the serrated tear bar with only ~1.8 cm of border, preventing roll waste.
+
+---
+
+### 🖼️ 3. Pixel-Perfect Thermal Dithering Engine
+- **Multiple Binarization Algorithms**:
+  - **Floyd-Steinberg**: Smooth, gradient-rich error diffusion.
+  - **Atkinson**: Classic vintage Mac high-contrast sharpness.
+  - **Bayer 4x4 Matrix**: Retro crosshatch ordered dithering.
+  - **Pure Adaptive Threshold**: Ultra-crisp typography and barcode readability.
+- **Live Canvas Preview**: Real-time slider adjustments for contrast, brightness, negative inversion, and threshold levels.
+
+---
+
+### 📐 4. Dual Paper Width & Multi-Protocol Support
+| Profile | Dot Width | Paper Width | Typical Hardware |
+| :--- | :--- | :--- | :--- |
+| **58mm Standard / Pocket** | 384 dots (48 B/line) | 58mm / 2.25 inch | X5, X5h, X6, C9, C15, PeriPage, WalkPrint, POS-58 |
+| **80mm Commercial POS** | 576 dots (72 B/line) | 80mm / 3.12 inch | Epson TM-T88, Star Micronics, Munbyn, POS-80 |
+
+---
+
+## 🖨️ Supported Printers
+
+### Pocket Bluetooth Printers (Tiny Print / WalkPrint Protocol)
+- **Model X Series**: X5, X5h, X6
+- **Model C Series**: C9, C13, C15, C17, C19, C20
+- **PeriPage / WalkPrint / FunPrint / GB01**
+- **Mini Cat Thermal Printers & Meow Machines**
+
+### Commercial POS & Desktop Printers (ESC/POS Protocol)
+- **Epson POS** (TM-T20, TM-T88 series)
+- **Star Micronics** (TSP100, TSP650)
+- **Munbyn, Rongta, Netum, Xprinter 58mm & 80mm**
+- **Any AirPrint / System Thermal Spooler**
+
+---
+
+## 📱 Multi-Platform Execution
+
+Thermal Print Studio is engineered to run seamlessly across all modern operating systems:
+
+```
+                          ┌──────────────────────────┐
+                          │   Thermal Print Studio   │
+                          └────────────┬─────────────┘
+                                       │
+        ┌──────────────────┬───────────┴───────────┬──────────────────┐
+        ▼                  ▼                       ▼                  ▼
+   🌐 Web PWA        🤖 Android APK           🍎 iOS App        💻 Desktop App
+ (Chrome / Edge)   (Capacitor / Play)      (Capacitor / iOS)   (macOS & Windows)
+```
+
+### 1. 🌐 Web Application (PWA)
+Runs directly in modern Chromium browsers (Chrome, Edge, Opera, Android Chrome) with zero driver installation:
+- Uses the **Web Bluetooth API** (`navigator.bluetooth`) to pair and stream directly to BLE printers.
+- Uses the **Web Serial API** (`navigator.serial`) for paired Bluetooth SPP COM ports or USB-OTG cables.
+- **Try it now**: [https://zaryif.github.io/Thermal_printer/](https://zaryif.github.io/Thermal_printer/)
+
+### 2. 🤖 Android APK
+Build a standalone APK or publish to the Google Play Store using Capacitor:
 ```bash
-# Clone the repository
+# 1. Build production web distribution
+npm run build
+
+# 2. Sync native Android assets
+npm run cap:sync
+
+# 3. Open in Android Studio
+npm run cap:android
+```
+In Android Studio, click **Build > Build Bundle(s) / APK(s) > Build APK(s)** to produce `app-release.apk`.
+
+### 3. 🍎 iOS (iPhone & iPad)
+Deploy to iPhone or iPad with full Bluetooth permissions:
+```bash
+# 1. Build and sync iOS workspace
+npm run build
+npm run cap:sync
+
+# 2. Open Xcode project
+npm run cap:ios
+```
+Select your connected iPhone/iPad and press **Run (Cmd + R)**.
+
+### 4. 💻 Desktop (macOS & Windows)
+Packaged via Electron with native serial port and menu bar integration:
+```bash
+# Run desktop app in development
+npm run electron:start
+
+# Build macOS installer (.DMG & .ZIP)
+npm run electron:mac
+
+# Build Windows installer (.EXE & Portable)
+npm run electron:win
+```
+Built binaries are generated in the `release/` directory.
+
+---
+
+## 🛠️ Local Development Setup
+
+### Prerequisites
+- **Node.js**: v18.0.0 or higher
+- **npm**: v9.0.0 or higher
+- **Chromium-based Browser**: Google Chrome or Microsoft Edge (for Web Bluetooth testing)
+
+### Installation
+```bash
+# 1. Clone the repository
 git clone https://github.com/zaryif/Thermal_printer.git
 cd Thermal_printer
 
-# Install dependencies
+# 2. Install dependencies
 npm install
 
-# Start local dev server
+# 3. Launch Vite development server
 npm run dev
 ```
-
-Open [http://localhost:5173](http://localhost:5173) in your browser.
-
----
-
-## 📱 Multi-Platform Build & Packaging
-
-### 🤖 Android (APK & Google Play)
-Built with **Capacitor Android**:
-
-```bash
-# Build production web bundle and sync native project
-npm run build
-npm run cap:sync
-
-# Open in Android Studio to build APK or run on connected Android device
-npm run cap:android
-```
-> In Android Studio, go to **Build** > **Build Bundle(s) / APK(s)** > **Build APK(s)** to generate the release APK.
-
-### 🍎 iOS (iPhone & iPad)
-Built with **Capacitor iOS**:
-
-```bash
-# Build and sync native iOS workspace
-npm run build
-npm run cap:sync
-
-# Open in Xcode
-npm run cap:ios
-```
-> Select your connected iPhone or iPad in Xcode and press **Run (Cmd+R)**.
-
-### 💻 Desktop (macOS & Windows)
-Built with **Electron**:
-
-```bash
-# Launch desktop app locally
-npm run electron:start
-
-# Build macOS DMG and ZIP
-npm run electron:mac
-
-# Build Windows EXE installer (NSIS & Portable)
-npm run electron:win
-```
-Outputs are placed into the `release/` folder.
+Visit `http://localhost:5173` in your browser.
 
 ---
 
-## 🖨️ Tested Hardware & Bluetooth Configuration
+## 🔑 Google Calendar OAuth Configuration (Optional)
 
-- **X5 / X5h Pocket Thermal Printer** (58mm, 200 DPI, Bluetooth SPP/BLE)
-- **Generic 58mm / 80mm ESC/POS Mini Printers** (POS-58, MPT-II, Cat Printers)
-- **Default Bluetooth PIN**: `0000` or `1234`
-- **Default Baud Rate**: `9600` or `115200`
+To enable 1-click Google Sign-In directly in the app:
+1. Go to the [Google Cloud Console](https://console.cloud.google.com/).
+2. Create a new project and enable the **Google Calendar API**.
+3. Under **APIs & Services > Credentials**, create an **OAuth 2.0 Web Client ID**.
+4. Add your domain (e.g. `https://zaryif.github.io` or `http://localhost:5173`) to **Authorized JavaScript origins**.
+5. Copy the Client ID and paste it into the app's **Calendar Modal**, or set it in your environment:
+   ```env
+   VITE_GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
+   ```
+*(Note: If you do not wish to set up a Client ID, you can use the **Upload Google .ICS File** tab anytime without any configuration!)*
 
 ---
 
-## 📄 License
-MIT License. Created by MD. ZARIF AZFAR.
+## 🤖 Standalone Python BLE Tool
 
+A production Python utility for headless script printing over macOS/Linux Bluetooth is provided:
+- Located at: `scratch/print_perfect_friday.py`
+- Features: Direct Bleak BLE connection to `X5h-399A`, calibrated energy payload, and 50ms pacing.
+
+Run standalone:
+```bash
+python3 scratch/print_perfect_friday.py
+```
+
+---
+
+## 🔄 CI/CD & GitHub Actions
+
+Thermal Print Studio uses automated GitHub Actions:
+- **`deploy.yml`**: Automatically builds and deploys every commit pushed to `main` directly to **GitHub Pages**.
+- **`release.yml`**: On tag creation (`v*`), automatically builds the web distribution zip, compiles release assets, and generates release notes.
+
+---
+
+## 📋 Troubleshooting & FAQ
+
+<details>
+<summary><strong>Q: Why does my pocket thermal printer print faint or washed-out lines?</strong></summary>
+Pocket printers require adequate heating energy. Standard ESC/POS commands lack the Tiny Print concentration header. Thermal Print Studio automatically detects Tiny Print chipsets and injects <code>0x51 0x78 0xAF (Energy 9200)</code> and <code>0xA4 (Quality 5 Deepen)</code> to ensure deep black contrast.
+</details>
+
+<details>
+<summary><strong>Q: Why does the print cut off or get messy halfway through?</strong></summary>
+Mini thermal printers have small hardware FIFO buffers (~32KB). If data is streamed at 10-20ms intervals, the buffer overflows. Thermal Print Studio enforces a <strong>50ms delay per 177-byte packet</strong> plus periodic 100ms breathers, allowing 100% of receipts to print without drops.
+</details>
+
+<details>
+<summary><strong>Q: Why was text scrambled before on X5h printers?</strong></summary>
+Standard ESC/POS assumes MSB-first bit order. Tiny Print / WalkPrint hardware decodes pixels <strong>LSB-first</strong> (Bit 0 is Pixel 0, Bit 7 is Pixel 7). Thermal Print Studio packs bytes in exact LSB order for these devices.
+</details>
+
+---
+
+## 📜 License & Attribution
+
+Distributed under the **MIT License**. See `LICENSE` for more information.
+
+Designed & Built with ❤️ by **MD. ZARIF AZFAR**.
