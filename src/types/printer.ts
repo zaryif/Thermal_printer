@@ -26,7 +26,8 @@ export interface TextBlock {
 export interface ImageBlock {
   id: string;
   type: 'image';
-  dataUrl: string; // Base64 or Object URL
+  dataUrl: string; // Base64 or Object URL (dithered preview)
+  originalDataUrl?: string; // Pristine source upload for non-destructive re-dithering
   dither: DitherAlgorithm;
   threshold: number; // 0 - 255
   contrast: number; // 0.5 - 2.0
@@ -125,7 +126,7 @@ export interface TemplateDefinition {
   id: string;
   name: string;
   tagline: string;
-  category: 'calendar' | 'productivity' | 'pos' | 'personal' | 'creative';
+  category: 'calendar' | 'productivity' | 'pos' | 'personal' | 'creative' | 'notes' | 'custom';
   paperWidth: PaperWidth;
   blocks: ReceiptBlock[];
 }

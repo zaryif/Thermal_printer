@@ -30,6 +30,10 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 
+# IDE
+.vscode/
+.idea/
+
 # APK / XAPK binaries & scratch
 *.xapk
 *.apk

@@ -25,7 +25,8 @@ import {
   Trash2,
   Sliders,
   Sparkles,
-  Upload
+  Upload,
+  Scissors
 } from 'lucide-react';
 import { processImageForThermal } from '../services/imageDithering';
 
@@ -67,6 +68,7 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
 
         onUpdateBlock({
           ...selectedBlock,
+          originalDataUrl: dataUrl,
           dataUrl: processed.previewDataUrl
         } as ImageBlock);
       } catch (err) {
@@ -80,18 +82,19 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
     if (!selectedBlock || selectedBlock.type !== 'image') return;
     const current = selectedBlock as ImageBlock;
     const merged = { ...current, ...changes };
+    const sourceDataUrl = merged.originalDataUrl || merged.dataUrl;
 
-    if (merged.dataUrl) {
+    if (sourceDataUrl) {
       const targetWidth = paperWidth === '58mm' ? 384 : 576;
       try {
         const processed = await processImageForThermal(
-          merged.dataUrl,
+          sourceDataUrl,
           targetWidth,
-          merged.dither,
-          merged.threshold,
-          merged.contrast,
-          merged.brightness,
-          merged.invert
+          merged.dither || 'atkinson',
+          merged.threshold || 128,
+          merged.contrast || 1.15,
+          merged.brightness || 0,
+          merged.invert || false
         );
         merged.dataUrl = processed.previewDataUrl;
       } catch (err) {
@@ -164,6 +167,13 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
           >
             <Minus className="w-4 h-4 mb-1 text-stone-400" />
             <span>Divider</span>
+          </button>
+          <button
+            onClick={() => onAddBlock('feed')}
+            className="flex flex-col items-center justify-center p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/60 text-slate-300 hover:text-white transition-all text-[11px]"
+          >
+            <Scissors className="w-4 h-4 mb-1 text-teal-400" />
+            <span>Tear Feed</span>
           </button>
         </div>
       </div>
@@ -857,6 +867,35 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
                     </button>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {/* Feed / Tear Space Inspector */}
+            {selectedBlock.type === 'feed' && (
+              <div className="space-y-3">
+                <div className="flex justify-between text-slate-400 mb-1">
+                  <span>Feed Blank Lines</span>
+                  <span className="font-mono text-amber-400 font-bold">
+                    {((selectedBlock as any).lines || 3)} lines (~{((selectedBlock as any).lines || 3) * 6}mm)
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min="1"
+                  max="10"
+                  step="1"
+                  value={(selectedBlock as any).lines || 3}
+                  onChange={(e) =>
+                    onUpdateBlock({
+                      ...selectedBlock,
+                      lines: parseInt(e.target.value, 10)
+                    } as any)
+                  }
+                  className="w-full accent-amber-500"
+                />
+                <p className="text-[11px] text-slate-400">
+                  Advances the paper cleanly past your printer's serrated tear bar so the receipt can be torn off without cutting any text.
+                </p>
               </div>
             )}
           </div>

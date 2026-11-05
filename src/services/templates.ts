@@ -220,6 +220,135 @@ export const PRESET_TEMPLATES: TemplateDefinition[] = [
         lines: 2
       }
     ]
+  },
+  {
+    id: 'photo-memo-sticker',
+    name: 'Photo Sticker & Pocket Memo',
+    tagline: 'Upload your photo with custom Atkinson dithering & personal notes',
+    category: 'notes',
+    paperWidth: '58mm',
+    blocks: [
+      {
+        id: 'pm_h1',
+        type: 'header',
+        title: 'POCKET MEMO & PHOTO',
+        subtitle: 'CAPTURED MOMENT',
+        dateStr: new Date().toLocaleDateString('en-US', {
+          weekday: 'short',
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric'
+        }).toUpperCase()
+      },
+      {
+        id: 'pm_div1',
+        type: 'divider',
+        style: 'cut'
+      },
+      {
+        id: 'pm_img1',
+        type: 'image',
+        dataUrl: '',
+        dither: 'atkinson',
+        threshold: 128,
+        contrast: 1.15,
+        brightness: 0,
+        invert: false,
+        caption: 'Click Photo block to upload image'
+      },
+      {
+        id: 'pm_div2',
+        type: 'divider',
+        style: 'dashed'
+      },
+      {
+        id: 'pm_txt1',
+        type: 'text',
+        text: '“Every moment is a fresh beginning.”',
+        fontSize: 'sm',
+        align: 'center',
+        bold: false,
+        inverted: false,
+        monospace: true
+      },
+      {
+        id: 'pm_feed1',
+        type: 'feed',
+        lines: 3
+      }
+    ]
+  },
+  {
+    id: 'midterm-study-sprint',
+    name: 'Midterm & Exam Revision Sprint',
+    tagline: 'Countdown checklist, problem set trackers & daily motivation',
+    category: 'productivity',
+    paperWidth: '58mm',
+    blocks: [
+      {
+        id: 'ms_h1',
+        type: 'header',
+        title: 'MIDTERM STUDY SPRINT',
+        subtitle: 'EXAM COUNTDOWN & REVISION',
+        dateStr: new Date().toLocaleDateString('en-US', {
+          weekday: 'short',
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric'
+        }).toUpperCase(),
+        metaLeft: 'FOCUS: 100%',
+        metaRight: 'STATUS: ACTIVE'
+      },
+      {
+        id: 'ms_div1',
+        type: 'divider',
+        style: 'double'
+      },
+      {
+        id: 'ms_q1',
+        type: 'text',
+        text: '“Success is the sum of small efforts, repeated day in and day out.”',
+        fontSize: 'xs',
+        align: 'center',
+        bold: false,
+        inverted: false,
+        monospace: true
+      },
+      {
+        id: 'ms_div2',
+        type: 'divider',
+        style: 'solid'
+      },
+      {
+        id: 'ms_tasks1',
+        type: 'tasklist',
+        title: 'TODAY STUDY OBJECTIVES',
+        items: [
+          { id: 'm1', text: 'Data Communication (CNCS) Review', done: true, priority: 'high' },
+          { id: 'm2', text: 'Algorithms: Tracing & Complexity', done: false, priority: 'high' },
+          { id: 'm3', text: 'Database Management Lab Sets', done: false, priority: 'medium' },
+          { id: 'm4', text: 'Drink 2.5L Water & 30m Exercise', done: false, priority: 'medium' }
+        ]
+      },
+      {
+        id: 'ms_div3',
+        type: 'divider',
+        style: 'stars'
+      },
+      {
+        id: 'ms_qr1',
+        type: 'qrcode',
+        data: 'https://calendar.google.com',
+        size: 130,
+        align: 'center',
+        label: 'SCAN FOR STUDY CALENDAR'
+      },
+      {
+        id: 'ms_feed1',
+        type: 'feed',
+        lines: 3
+      }
+    ]
   }
 ];
 

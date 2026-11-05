@@ -383,6 +383,8 @@ export const App: React.FC = () => {
         isOpen={isTemplatesModalOpen}
         onClose={() => setIsTemplatesModalOpen(false)}
         onSelectTemplate={handleSelectTemplate}
+        currentBlocks={blocks}
+        currentPaperWidth={paperWidth}
       />
     </div>
   );
