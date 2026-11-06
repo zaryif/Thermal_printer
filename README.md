@@ -1,16 +1,16 @@
-# 🖨️ Thermal Print Studio
+# 🖨️ Thermal Printer OS
 
 <div align="center">
 
-![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/zaryif/Thermal_printer/deploy.yml?branch=main&label=GitHub%20Pages%20Deploy&style=for-the-badge)
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/zaryif/Thermal_printer/release.yml?style=for-the-badge)
 ![GitHub Release](https://img.shields.io/github/v/release/zaryif/Thermal_printer?style=for-the-badge&color=orange)
 ![License](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)
-![Platforms](https://img.shields.io/badge/platforms-Web%20%7C%20Android%20%7C%20iOS%20%7C%20macOS%20%7C%20Windows-green?style=for-the-badge)
+![Platforms](https://img.shields.io/badge/platforms-Android%20%7C%20Windows%20%7C%20Linux%20%7C%20macOS%20%7C%20Web-green?style=for-the-badge)
 
-**The Universal Pocket & POS Thermal Receipt Designer**  
-*Direct Google Calendar Sign-In • Calibrated Tiny Print Hardware Protocol • Multi-Platform PWA/Desktop/Mobile*
+**The Universal Minimal OS for Pocket & POS Thermal Printers**  
+*Pure Dart/Flutter Native • Calibrated Tiny Print Engine • In-Place WYSIWYG Typewriter • Photo Upload • Quotes • Calendar*
 
-[🌐 **Live Web App (GitHub Pages)**](https://zaryif.github.io/Thermal_printer/) • [📦 **Download Latest Release (v1.0.0)**](https://github.com/zaryif/Thermal_printer/releases/tag/v1.0.0) • [🐛 **Report an Issue**](https://github.com/zaryif/Thermal_printer/issues)
+[🌐 **Web App**](https://zaryif.github.io/Thermal_printer/) • [📦 **Latest Release & APK**](https://github.com/zaryif/Thermal_printer/releases) • [🐛 **Report an Issue**](https://github.com/zaryif/Thermal_printer/issues)
 
 </div>
 
@@ -18,9 +18,9 @@
 
 ## 🌟 Overview
 
-**Thermal Print Studio** is an all-in-one thermal printing studio designed to bridge modern web & desktop workflows with pocket Bluetooth thermal printers and commercial POS terminals.
+**Thermal Printer OS** is a 100% native Flutter/Dart thermal printing operating system calibrated directly against pocket Bluetooth printers (X5, X6, Cat, WalkPrint, Tiny Print) and commercial POS hardware.
 
-Whether you are printing daily **Google Calendar agendas**, **midterm study planners**, **grocery/cafe receipts**, or **custom dithered artwork**, Thermal Print Studio delivers pixel-perfect contrast, native hardware speed, and zero wasted paper.
+It gives you a direct, tactile typewriter experience: click and edit directly on the thermal receipt paper with zero lag, upload photos with automatic Floyd-Steinberg dithering, shuffle motivational focus quotes, synchronize daily schedules with Google Calendar, and print with a prominent, tactile one-tap print dock.
 
 ---
 

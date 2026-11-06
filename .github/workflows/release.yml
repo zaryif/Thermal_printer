@@ -34,7 +34,7 @@ jobs:
       - name: Build Web Production Distribution
         run: |
           npm run build
-          cd dist && zip -r ../thermal-print-studio-web.zip . && cd ..
+          cd dist && zip -r ../thermal-printer-os-web.zip . && cd ..
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -55,15 +55,15 @@ jobs:
           flutter pub get
           flutter build apk --release
           cd ..
-          cp flutter_app/build/app/outputs/flutter-apk/app-release.apk ThermalStudio-Android.apk
+          cp flutter_app/build/app/outputs/flutter-apk/app-release.apk ThermalPrinterOS-Android.apk
 
       - name: Upload Android & Web Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: android-web-artifacts
           path: |
-            ThermalStudio-Android.apk
-            thermal-print-studio-web.zip
+            ThermalPrinterOS-Android.apk
+            thermal-printer-os-web.zip
 
   build-windows:
     name: Build Windows App
@@ -87,13 +87,13 @@ jobs:
           flutter pub get
           flutter build windows --release
           cd ..
-          Compress-Archive -Path flutter_app\build\windows\x64\runner\Release\* -DestinationPath ThermalStudio-Windows.zip
+          Compress-Archive -Path flutter_app\build\windows\x64\runner\Release\* -DestinationPath ThermalPrinterOS-Windows.zip
 
       - name: Upload Windows Artifact
         uses: actions/upload-artifact@v4
         with:
           name: windows-artifacts
-          path: ThermalStudio-Windows.zip
+          path: ThermalPrinterOS-Windows.zip
 
   build-linux:
     name: Build Linux App
@@ -121,13 +121,13 @@ jobs:
           flutter pub get
           flutter build linux --release
           cd ..
-          tar -czvf ThermalStudio-Linux.tar.gz -C flutter_app/build/linux/x64/release/bundle .
+          tar -czvf ThermalPrinterOS-Linux.tar.gz -C flutter_app/build/linux/x64/release/bundle .
 
       - name: Upload Linux Artifact
         uses: actions/upload-artifact@v4
         with:
           name: linux-artifacts
-          path: ThermalStudio-Linux.tar.gz
+          path: ThermalPrinterOS-Linux.tar.gz
 
   release:
     name: Publish GitHub Release
@@ -164,23 +164,25 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.vars.outputs.tag }}
-          name: Thermal Studio ${{ steps.vars.outputs.tag }}
+          name: Thermal Printer OS ${{ steps.vars.outputs.tag }}
           body: |
-            ## Thermal Studio Release ${{ steps.vars.outputs.tag }}
+            ## Thermal Printer OS Release ${{ steps.vars.outputs.tag }}
 
             ### 🚀 Pure Dart / Flutter Native Architecture
             - **100% Native Pure Dart:** Replaced webview/Capacitor with native Flutter for high performance, zero latency, and true cross-platform execution (Android, Windows, Linux, macOS).
             - **Reverse-Engineered Tiny Print Hardware Engine:** Replicated exact Bluetooth Low Energy protocol (`0x51 0x78` header, CRC-8 polynomial 0x07, Deepen energy Level 5 at 9200us pulse, and 50ms chunk pacing).
-            - **Direct WYSIWYG Typewriter:** Click directly on paper to edit, format, and add blocks in-place without modal popups.
-            - **Minimal OS Aesthetic & Tactile Physics:** High-contrast OLED monochrome interface with smooth tactile press response and paper feed entrance animations.
-            - **Google Calendar Direct Sync:** One-tap agenda fetch and receipt layout for daily schedule printing.
+            - **Unmissable Bottom Print Dock:** Large, prominent tactile master print button with real-time Bluetooth online/offline status and instant pairing.
+            - **Photo & Image Upload Engine:** Added gallery/camera photo picker with automatic Floyd-Steinberg dithering and high-contrast thresholding for sharp thermal prints.
+            - **Motivational Quotes & 1-Tap Shuffle:** Built-in focus quotes from Marcus Aurelius, Steve Jobs, Seneca, etc., with 1-tap quote shuffling.
+            - **Daily Schedule & Google Calendar Sync:** One-tap agenda fetch and schedule receipt generation.
+            - **Custom Gap / Spacing Controls:** Dedicated adjustable spacer blocks and ample vertical line-height so text never collides or gets hidden.
             - **Multi-Font Engine:** Mono (POS), Clean (Sans), Editorial (Serif), Retro (Arcade), Typewriter.
 
             ### 📦 Release Assets
-            - `ThermalStudio-Android.apk`: Native Android Application.
-            - `ThermalStudio-Windows.zip`: Native Windows Application.
-            - `ThermalStudio-Linux.tar.gz`: Native Linux Application.
-            - `thermal-print-studio-web.zip`: Standalone Web App Distribution.
+            - `ThermalPrinterOS-Android.apk`: Native Android Application.
+            - `ThermalPrinterOS-Windows.zip`: Native Windows Application.
+            - `ThermalPrinterOS-Linux.tar.gz`: Native Linux Application.
+            - `thermal-printer-os-web.zip`: Standalone Web App Distribution.
           files: release-assets/*
           fail_on_unmatched_files: false
           draft: false

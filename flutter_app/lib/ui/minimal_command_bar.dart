@@ -9,14 +9,16 @@ class MinimalCommandBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tools = [
-      {'type': 'text', 'label': 'Text', 'icon': Icons.text_fields},
-      {'type': 'header', 'label': 'Title', 'icon': Icons.title},
-      {'type': 'schedule', 'label': 'Agenda', 'icon': Icons.schedule},
+      {'type': 'photo', 'label': 'Photo', 'icon': Icons.add_photo_alternate_outlined},
+      {'type': 'quote', 'label': 'Quote', 'icon': Icons.format_quote_rounded},
+      {'type': 'schedule', 'label': 'Schedule', 'icon': Icons.calendar_month_outlined},
       {'type': 'tasklist', 'label': 'Todo', 'icon': Icons.check_circle_outline},
+      {'type': 'text', 'label': 'Note', 'icon': Icons.notes_rounded},
+      {'type': 'gap', 'label': 'Gap', 'icon': Icons.height_rounded},
+      {'type': 'header', 'label': 'Header', 'icon': Icons.title},
+      {'type': 'divider', 'label': 'Line', 'icon': Icons.horizontal_rule_rounded},
+      {'type': 'qrcode', 'label': 'QR Code', 'icon': Icons.qr_code_2_rounded},
       {'type': 'table', 'label': 'Table', 'icon': Icons.table_chart_outlined},
-      {'type': 'qrcode', 'label': 'QR Code', 'icon': Icons.qr_code},
-      {'type': 'divider', 'label': 'Cut', 'icon': Icons.content_cut},
-      {'type': 'feed', 'label': 'Feed', 'icon': Icons.arrow_downward},
     ];
 
     return Container(
@@ -25,14 +27,15 @@ class MinimalCommandBar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
         child: Row(
           children: tools.map((t) {
             return Padding(
-              padding: const EdgeInsets.only(right: 6),
+              padding: const EdgeInsets.only(right: 8),
               child: TactilePressWidget(
                 onTap: () => onAddBlock(t['type'] as String),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
                   decoration: BoxDecoration(
                     color: const Color(0xFF18181B),
                     borderRadius: BorderRadius.circular(8),
@@ -42,7 +45,7 @@ class MinimalCommandBar extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(t['icon'] as IconData, size: 14, color: const Color(0xFFF59E0B)),
-                      const SizedBox(width: 5),
+                      const SizedBox(width: 6),
                       Text(
                         '+ ${t['label']}',
                         style: const TextStyle(

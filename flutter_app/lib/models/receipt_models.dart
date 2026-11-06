@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 
 enum PaperWidth {
@@ -242,5 +243,70 @@ class FeedBlock extends ReceiptBlock {
         'id': id,
         'type': type,
         'lines': lines,
+      };
+}
+
+class ImageBlock extends ReceiptBlock {
+  Uint8List? imageBytes;
+  String caption;
+  double contrast;
+  bool dither;
+  double height;
+
+  ImageBlock({
+    required super.id,
+    this.imageBytes,
+    this.caption = '',
+    this.contrast = 1.0,
+    this.dither = true,
+    this.height = 180.0,
+  }) : super(type: 'image');
+
+  @override
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'type': type,
+        'caption': caption,
+        'contrast': contrast,
+        'dither': dither,
+        'height': height,
+      };
+}
+
+class QuoteBlock extends ReceiptBlock {
+  String quote;
+  String author;
+  String category;
+
+  QuoteBlock({
+    required super.id,
+    this.quote = 'The obstacle in the path becomes the path. Never forget, within every obstacle is an opportunity.',
+    this.author = 'Marcus Aurelius',
+    this.category = 'Discipline',
+  }) : super(type: 'quote');
+
+  @override
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'type': type,
+        'quote': quote,
+        'author': author,
+        'category': category,
+      };
+}
+
+class GapBlock extends ReceiptBlock {
+  double height;
+
+  GapBlock({
+    required super.id,
+    this.height = 16.0,
+  }) : super(type: 'gap');
+
+  @override
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'type': type,
+        'height': height,
       };
 }
