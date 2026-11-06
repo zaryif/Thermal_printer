@@ -1,5 +1,12 @@
 export type PaperWidth = '58mm' | '80mm';
 
+export type ReceiptFontFamily =
+  | 'receipt-mono'
+  | 'clean-sans'
+  | 'classic-serif'
+  | 'retro-terminal'
+  | 'typewriter';
+
 export type DitherAlgorithm = 'floyd-steinberg' | 'atkinson' | 'bayer' | 'threshold';
 
 export interface HeaderBlock {
@@ -10,6 +17,7 @@ export interface HeaderBlock {
   dateStr?: string;
   metaLeft?: string;
   metaRight?: string;
+  fontFamily?: ReceiptFontFamily;
 }
 
 export interface TextBlock {
@@ -21,6 +29,7 @@ export interface TextBlock {
   bold: boolean;
   inverted: boolean; // White text on black background
   monospace: boolean;
+  fontFamily?: ReceiptFontFamily;
 }
 
 export interface ImageBlock {
@@ -128,6 +137,7 @@ export interface TemplateDefinition {
   tagline: string;
   category: 'calendar' | 'productivity' | 'pos' | 'personal' | 'creative' | 'notes' | 'custom';
   paperWidth: PaperWidth;
+  fontFamily?: ReceiptFontFamily;
   blocks: ReceiptBlock[];
 }
 

@@ -36,10 +36,68 @@
   color: #050505;
 }
 
-/* Monospace receipt font */
-.font-receipt {
-  font-family: 'Courier New', Courier, monospace;
+/* Minimal OS Typography System */
+.font-receipt-mono {
+  font-family: 'Space Mono', 'Courier Prime', 'Courier New', Courier, monospace;
   letter-spacing: -0.2px;
+}
+
+.font-clean-sans {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  letter-spacing: -0.1px;
+}
+
+.font-classic-serif {
+  font-family: 'Playfair Display', Georgia, Cambria, 'Times New Roman', serif;
+}
+
+.font-retro-terminal {
+  font-family: 'VT323', 'Press Start 2P', monospace;
+  letter-spacing: 0.5px;
+}
+
+.font-typewriter {
+  font-family: 'Courier Prime', 'Courier New', Courier, monospace;
+  letter-spacing: -0.25px;
+}
+
+/* Legacy fallback font */
+.font-receipt {
+  font-family: 'Space Mono', 'Courier Prime', 'Courier New', Courier, monospace;
+  letter-spacing: -0.2px;
+}
+
+/* Minimal OS Inline Paper Input Styling */
+.receipt-input {
+  background: transparent;
+  border: 1px dashed transparent;
+  outline: none;
+  border-radius: 2px;
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  text-align: inherit;
+  width: 100%;
+  transition: all 0.15s ease;
+}
+
+.receipt-input:hover {
+  border-color: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.receipt-input:focus {
+  border-color: rgba(0, 0, 0, 0.6);
+  background: rgba(254, 240, 138, 0.35); /* Subtle amber-yellow highlighter tint */
+}
+
+/* Remove default spin buttons and webkit search cancel */
+.receipt-input::-webkit-outer-spin-button,
+.receipt-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 /* Thermal paper feed animation */

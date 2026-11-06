@@ -6,16 +6,16 @@ import {
   Calendar,
   Layers,
   Download,
-  Share2,
   RefreshCw,
-  PlusCircle,
-  FileText
+  Type
 } from 'lucide-react';
-import { PaperWidth, BluetoothConnectionState } from '../types/printer';
+import { PaperWidth, BluetoothConnectionState, ReceiptFontFamily } from '../types/printer';
 
 interface NavbarProps {
   paperWidth: PaperWidth;
   onPaperWidthChange: (width: PaperWidth) => void;
+  fontFamily: ReceiptFontFamily;
+  onFontFamilyChange: (font: ReceiptFontFamily) => void;
   btState: BluetoothConnectionState;
   onOpenBluetoothModal: () => void;
   onOpenCalendarModal: () => void;
@@ -29,6 +29,8 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({
   paperWidth,
   onPaperWidthChange,
+  fontFamily,
+  onFontFamilyChange,
   btState,
   onOpenBluetoothModal,
   onOpenCalendarModal,
@@ -39,112 +41,130 @@ export const Navbar: React.FC<NavbarProps> = ({
   onNewBlank
 }) => {
   return (
-    <header className="sticky top-0 z-30 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 px-3 sm:px-6 py-2.5 shadow-lg">
+    <header className="sticky top-0 z-30 bg-stone-950/95 backdrop-blur-md border-b border-stone-800/90 px-3 sm:px-6 py-2 shadow-md">
       <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
         {/* Brand / Logo */}
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 via-orange-500 to-rose-500 p-0.5 shadow-md shadow-orange-500/20">
-            <div className="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
-              <Printer className="w-5 h-5 text-amber-400" />
-            </div>
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 rounded-xl bg-stone-900 border border-stone-700/80 flex items-center justify-center shadow-inner">
+            <Printer className="w-4.5 h-4.5 text-amber-400" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="font-bold text-base sm:text-lg text-white tracking-tight">Thermal Studio</h1>
-              <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-amber-400/10 text-amber-400 border border-amber-400/20">
-                PRO
+            <div className="flex items-center gap-1.5">
+              <h1 className="font-bold text-sm sm:text-base text-stone-100 tracking-tight font-mono">
+                THERMAL STUDIO
+              </h1>
+              <span className="text-[9px] uppercase font-bold tracking-wider px-1.5 py-0.2 rounded bg-amber-400/10 text-amber-400 border border-amber-400/20">
+                OS
               </span>
             </div>
-            <p className="text-xs text-slate-400 hidden sm:block">POS & Google Calendar Thermal Designer</p>
+            <p className="text-[11px] text-stone-400 hidden sm:block">Tactile Thermal Typewriter</p>
           </div>
         </div>
 
-        {/* Paper Size Selector */}
-        <div className="flex items-center bg-slate-800/80 p-1 rounded-xl border border-slate-700/60 text-xs">
-          <button
-            onClick={() => onPaperWidthChange('58mm')}
-            className={`px-3 py-1.5 rounded-lg font-semibold transition-all ${
-              paperWidth === '58mm'
-                ? 'bg-amber-500 text-slate-950 shadow-sm'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            58mm <span className="opacity-75 font-normal">(384px)</span>
-          </button>
-          <button
-            onClick={() => onPaperWidthChange('80mm')}
-            className={`px-3 py-1.5 rounded-lg font-semibold transition-all ${
-              paperWidth === '80mm'
-                ? 'bg-amber-500 text-slate-950 shadow-sm'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            80mm <span className="opacity-75 font-normal">(576px)</span>
-          </button>
+        {/* Paper Size & Font Family Pickers */}
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* Paper Size Selector */}
+          <div className="flex items-center bg-stone-900/90 p-0.5 rounded-lg border border-stone-800 text-xs">
+            <button
+              onClick={() => onPaperWidthChange('58mm')}
+              className={`px-2.5 py-1 rounded font-semibold transition-all ${
+                paperWidth === '58mm'
+                  ? 'bg-amber-500 text-stone-950 shadow-sm'
+                  : 'text-stone-400 hover:text-white'
+              }`}
+            >
+              58mm
+            </button>
+            <button
+              onClick={() => onPaperWidthChange('80mm')}
+              className={`px-2.5 py-1 rounded font-semibold transition-all ${
+                paperWidth === '80mm'
+                  ? 'bg-amber-500 text-stone-950 shadow-sm'
+                  : 'text-stone-400 hover:text-white'
+              }`}
+            >
+              80mm
+            </button>
+          </div>
+
+          {/* Font Family Selector */}
+          <div className="flex items-center bg-stone-900/90 px-2 py-1 rounded-lg border border-stone-800 text-xs text-stone-300 gap-1.5">
+            <Type className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+            <select
+              value={fontFamily}
+              onChange={(e) => onFontFamilyChange(e.target.value as ReceiptFontFamily)}
+              className="bg-transparent text-xs text-stone-200 outline-none cursor-pointer pr-1"
+            >
+              <option value="receipt-mono" className="bg-stone-900 text-white">Mono (POS)</option>
+              <option value="clean-sans" className="bg-stone-900 text-white">Clean (Sans)</option>
+              <option value="classic-serif" className="bg-stone-900 text-white">Editorial (Serif)</option>
+              <option value="retro-terminal" className="bg-stone-900 text-white">Retro (Arcade)</option>
+              <option value="typewriter" className="bg-stone-900 text-white">Typewriter</option>
+            </select>
+          </div>
         </div>
 
-        {/* Center / Action Buttons */}
+        {/* Action Buttons & Integration */}
         <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-          {/* Calendar Template Button */}
+          {/* Calendar Template */}
           <button
             onClick={onOpenCalendarModal}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700/80 border border-slate-700 text-xs sm:text-sm font-medium text-slate-200 hover:text-white transition-all shadow-sm"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-stone-900 hover:bg-stone-800 border border-stone-800 text-xs font-medium text-stone-200 hover:text-white transition-all shadow-sm"
           >
-            <Calendar className="w-4 h-4 text-sky-400" />
-            <span>Google Calendar</span>
+            <Calendar className="w-3.5 h-3.5 text-sky-400" />
+            <span className="hidden sm:inline">Google Calendar</span>
+            <span className="sm:hidden">Calendar</span>
           </button>
 
           {/* Templates Drawer */}
           <button
             onClick={onOpenTemplatesModal}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700/80 border border-slate-700 text-xs sm:text-sm font-medium text-slate-200 hover:text-white transition-all shadow-sm"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-stone-900 hover:bg-stone-800 border border-stone-800 text-xs font-medium text-stone-200 hover:text-white transition-all shadow-sm"
           >
-            <Layers className="w-4 h-4 text-emerald-400" />
+            <Layers className="w-3.5 h-3.5 text-emerald-400" />
             <span>Templates</span>
           </button>
 
-          {/* New Blank */}
+          {/* Clear & New Blank */}
           <button
             onClick={onNewBlank}
             title="Clear & New Blank"
-            className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700/80 border border-slate-700 text-slate-400 hover:text-white transition-all"
+            className="p-1.5 rounded-lg bg-stone-900 hover:bg-stone-800 border border-stone-800 text-stone-400 hover:text-white transition-all"
           >
-            <RefreshCw className="w-4 h-4" />
+            <RefreshCw className="w-3.5 h-3.5" />
           </button>
 
           {/* Export PNG */}
           <button
             onClick={onExportPng}
             title="Download PNG Preview"
-            className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700/80 border border-slate-700 text-slate-400 hover:text-white transition-all"
+            className="p-1.5 rounded-lg bg-stone-900 hover:bg-stone-800 border border-stone-800 text-stone-400 hover:text-white transition-all"
           >
-            <Download className="w-4 h-4" />
+            <Download className="w-3.5 h-3.5" />
           </button>
-        </div>
 
-        {/* Right side: Bluetooth Connection & Print Action */}
-        <div className="flex items-center gap-2">
-          {/* Bluetooth Status Button */}
+          {/* Bluetooth Connection Button */}
           <button
             onClick={onOpenBluetoothModal}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs sm:text-sm font-medium transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${
               btState.isConnected
                 ? 'bg-emerald-950/40 border-emerald-500/50 text-emerald-300 hover:bg-emerald-900/50'
-                : 'bg-slate-800/80 border-slate-700 text-slate-300 hover:bg-slate-700'
+                : 'bg-stone-900 border-stone-800 text-stone-300 hover:bg-stone-800'
             }`}
           >
             {btState.isConnected ? (
               <>
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <BluetoothConnected className="w-4 h-4 text-emerald-400" />
-                <span className="truncate max-w-[100px] sm:max-w-[130px]">
+                <BluetoothConnected className="w-3.5 h-3.5 text-emerald-400" />
+                <span className="truncate max-w-[80px] sm:max-w-[120px]">
                   {btState.deviceName || 'Connected'}
                 </span>
               </>
             ) : (
               <>
-                <Bluetooth className="w-4 h-4 text-sky-400" />
-                <span>Pair Printer</span>
+                <Bluetooth className="w-3.5 h-3.5 text-sky-400" />
+                <span className="hidden sm:inline">Pair Printer</span>
+                <span className="sm:hidden">Pair</span>
               </>
             )}
           </button>
@@ -153,9 +173,9 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             onClick={onPrint}
             disabled={isPrinting}
-            className="flex items-center gap-2 px-4 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-bold text-xs sm:text-sm shadow-md shadow-orange-500/25 active:scale-95 transition-all disabled:opacity-50"
+            className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-stone-950 font-bold text-xs shadow-md shadow-amber-500/20 active:scale-95 transition-all disabled:opacity-50"
           >
-            <Printer className="w-4 h-4" />
+            <Printer className="w-3.5 h-3.5" />
             <span>{isPrinting ? 'Printing...' : 'Print'}</span>
           </button>
         </div>
@@ -163,4 +183,3 @@ export const Navbar: React.FC<NavbarProps> = ({
     </header>
   );
 };
-

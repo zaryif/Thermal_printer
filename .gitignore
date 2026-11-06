@@ -12,11 +12,12 @@ build/
 *.pem
 
 # Android build outputs & local config
-android/app/build/
-android/.gradle/
-android/local.properties
-android/captures/
-android/.idea/
+**/build/
+**/.gradle/
+**/local.properties
+**/captures/
+**/.idea/
+**/.kotlin/
 
 # Logs
 npm-debug.log*
@@ -39,4 +40,10 @@ yarn-error.log*
 *.apk
 *.zip
 scratch/
+reverse_engineer_tiny_printer/xapk_extracted/
+reverse_engineer_tiny_printer/decompiled_src/
+flutter_app/.dart_tool/
+flutter_app/build/
+*.salive
+**/.kotlin/
 

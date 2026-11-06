@@ -2,24 +2,29 @@ import React, { useState, useRef, useEffect } from 'react';
 import {
   ReceiptBlock,
   PaperWidth,
+  ReceiptFontFamily,
   BluetoothConnectionState,
   TemplateDefinition
 } from './types/printer';
 import { PRESET_TEMPLATES } from './services/templates';
 import { Navbar } from './components/Navbar';
+import { MinimalCommandDock } from './components/MinimalCommandDock';
 import { ReceiptCanvas } from './components/ReceiptCanvas';
 import { BlockEditor } from './components/BlockEditor';
 import { BluetoothModal } from './components/BluetoothModal';
 import { CalendarModal } from './components/CalendarModal';
 import { TemplatesModal } from './components/TemplatesModal';
 import { printReceiptElement, downloadReceiptPng } from './services/printEngine';
-import { printerService } from './services/bluetoothService';
 import { CheckCircle2, AlertCircle, Sparkles } from 'lucide-react';
 
 export const App: React.FC = () => {
-  // Load initial template or cached blocks from localStorage
+  // Load initial settings or cached blocks from localStorage
   const [paperWidth, setPaperWidth] = useState<PaperWidth>(() => {
     return (localStorage.getItem('tp_paper_width') as PaperWidth) || '58mm';
+  });
+
+  const [fontFamily, setFontFamily] = useState<ReceiptFontFamily>(() => {
+    return (localStorage.getItem('tp_font_family') as ReceiptFontFamily) || 'receipt-mono';
   });
 
   const [blocks, setBlocks] = useState<ReceiptBlock[]>(() => {
@@ -36,6 +41,7 @@ export const App: React.FC = () => {
   });
 
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
+  const [showInspector, setShowInspector] = useState(false);
   const [isBluetoothModalOpen, setIsBluetoothModalOpen] = useState(false);
   const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false);
   const [isTemplatesModalOpen, setIsTemplatesModalOpen] = useState(false);
@@ -54,7 +60,7 @@ export const App: React.FC = () => {
 
   const receiptRef = useRef<HTMLDivElement>(null);
 
-  // Auto-save blocks to localStorage
+  // Auto-save blocks and preferences to localStorage
   useEffect(() => {
     localStorage.setItem('tp_blocks', JSON.stringify(blocks));
   }, [blocks]);
@@ -62,6 +68,25 @@ export const App: React.FC = () => {
   useEffect(() => {
     localStorage.setItem('tp_paper_width', paperWidth);
   }, [paperWidth]);
+
+  useEffect(() => {
+    localStorage.setItem('tp_font_family', fontFamily);
+  }, [fontFamily]);
+
+  // Listen for Electron print shortcuts (Cmd+P / Ctrl+P)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'p') {
+        e.preventDefault();
+        handlePrint();
+      } else if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'n') {
+        e.preventDefault();
+        handleNewBlank();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [blocks, paperWidth]);
 
   const showToast = (text: string, type: 'success' | 'error' | 'info' = 'info') => {
     setToastMessage({ text, type });
@@ -236,6 +261,7 @@ export const App: React.FC = () => {
   const handleSelectTemplate = (tmpl: TemplateDefinition) => {
     setBlocks(tmpl.blocks);
     setPaperWidth(tmpl.paperWidth);
+    if (tmpl.fontFamily) setFontFamily(tmpl.fontFamily);
     setSelectedBlockId(null);
     showToast(`Loaded template: ${tmpl.name}`, 'success');
   };
@@ -291,11 +317,13 @@ export const App: React.FC = () => {
   const selectedBlock = blocks.find((b) => b.id === selectedBlockId) || null;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-stone-950 text-stone-100 flex flex-col font-sans select-none">
       {/* Top Navigation */}
       <Navbar
         paperWidth={paperWidth}
         onPaperWidthChange={setPaperWidth}
+        fontFamily={fontFamily}
+        onFontFamilyChange={setFontFamily}
         btState={btState}
         onOpenBluetoothModal={() => setIsBluetoothModalOpen(true)}
         onOpenCalendarModal={() => setIsCalendarModalOpen(true)}
@@ -306,26 +334,49 @@ export const App: React.FC = () => {
         onNewBlank={handleNewBlank}
       />
 
-      {/* Main Studio Body: Editor Drawer + Live Receipt Preview */}
-      <main className="flex-1 flex flex-col lg:flex-row relative overflow-hidden">
-        {/* Left Inspector & Block Tools */}
-        <BlockEditor
-          selectedBlock={selectedBlock}
-          paperWidth={paperWidth}
-          onUpdateBlock={handleUpdateBlock}
-          onAddBlock={handleAddBlock}
-          onDeleteBlock={handleDeleteBlock}
-        />
+      {/* Minimal OS Command Dock for instant block insertion */}
+      <MinimalCommandDock
+        onAddBlock={handleAddBlock}
+        showInspector={showInspector}
+        onToggleInspector={() => setShowInspector((prev) => !prev)}
+      />
 
-        {/* Center / Right Canvas Area */}
-        <section className="flex-1 bg-slate-950/80 overflow-y-auto relative flex flex-col items-center justify-start">
+      {/* Main Studio Body */}
+      <main className="flex-1 flex flex-col lg:flex-row relative overflow-hidden">
+        {/* Optional Fine-Tuning Inspector Drawer */}
+        {showInspector && (
+          <aside className="w-full lg:w-96 shrink-0 border-r border-stone-800 bg-stone-950 overflow-y-auto z-10 shadow-xl">
+            <div className="flex items-center justify-between p-3 border-b border-stone-800 text-xs font-bold uppercase tracking-wider text-stone-400">
+              <span>Fine-Tuning Inspector</span>
+              <button
+                onClick={() => setShowInspector(false)}
+                className="text-stone-400 hover:text-white px-2 py-0.5 rounded bg-stone-900 border border-stone-800 text-[10px]"
+              >
+                Close
+              </button>
+            </div>
+            <BlockEditor
+              selectedBlock={selectedBlock}
+              paperWidth={paperWidth}
+              onUpdateBlock={handleUpdateBlock}
+              onAddBlock={handleAddBlock}
+              onDeleteBlock={handleDeleteBlock}
+            />
+          </aside>
+        )}
+
+        {/* Center / Full Paper Canvas Area */}
+        <section className="flex-1 bg-stone-950 overflow-y-auto relative flex flex-col items-center justify-start">
           <ReceiptCanvas
             blocks={blocks}
             paperWidth={paperWidth}
+            fontFamily={fontFamily}
             selectedBlockId={selectedBlockId}
             onSelectBlock={handleSelectBlock}
+            onUpdateBlock={handleUpdateBlock}
             onMoveBlock={handleMoveBlock}
             onDeleteBlock={handleDeleteBlock}
+            onAddBlock={handleAddBlock}
             onToggleScheduleItem={handleToggleScheduleItem}
             onToggleTaskItem={handleToggleTaskItem}
             receiptRef={receiptRef}
@@ -335,7 +386,7 @@ export const App: React.FC = () => {
 
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-2.5 rounded-xl shadow-2xl backdrop-blur-md border animate-bounce-short text-xs font-semibold bg-slate-900 border-slate-700 text-white">
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-2.5 rounded-xl shadow-2xl backdrop-blur-md border animate-bounce-short text-xs font-semibold bg-stone-900 border-stone-700 text-white">
           {toastMessage.type === 'success' && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
           {toastMessage.type === 'error' && <AlertCircle className="w-4 h-4 text-rose-400" />}
           {toastMessage.type === 'info' && <Sparkles className="w-4 h-4 text-amber-400" />}
@@ -345,18 +396,18 @@ export const App: React.FC = () => {
 
       {/* Printing Overlay */}
       {isPrinting && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-sm w-full text-center shadow-2xl space-y-4">
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-stone-900 border border-stone-800 p-6 rounded-2xl max-w-sm w-full text-center shadow-2xl space-y-4">
             <div className="w-12 h-12 mx-auto rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center animate-spin">
               <Sparkles className="w-6 h-6 text-amber-400" />
             </div>
             <div>
-              <h3 className="font-bold text-base text-white">Streaming to Thermal Printer...</h3>
-              <p className="text-xs text-slate-400 mt-1">Chunking raster bits to prevent head buffer overflow</p>
+              <h3 className="font-bold text-base text-white">Streaming to Thermal Head...</h3>
+              <p className="text-xs text-stone-400 mt-1">LSB raster packets paced at 50ms with CRC8 integrity</p>
             </div>
-            <div className="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
+            <div className="w-full bg-stone-800 rounded-full h-2.5 overflow-hidden">
               <div
-                className="bg-gradient-to-r from-amber-500 to-orange-500 h-2.5 rounded-full transition-all duration-150"
+                className="bg-gradient-to-r from-amber-500 to-amber-600 h-2.5 rounded-full transition-all duration-150"
                 style={{ width: `${Math.max(5, printProgress)}%` }}
               ></div>
             </div>
@@ -391,4 +442,3 @@ export const App: React.FC = () => {
 };
 
 export default App;
-

@@ -7,15 +7,16 @@ on:
   workflow_dispatch:
     inputs:
       tag_name:
-        description: 'Release Tag (e.g. v1.1.0)'
+        description: 'Release Tag (e.g. v1.2.0)'
         required: true
-        default: 'v1.1.0'
+        default: 'v1.2.0'
 
 permissions:
   contents: write
 
 jobs:
-  release:
+  build-android-web:
+    name: Build Android APK & Web Bundle
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -37,6 +38,145 @@ jobs:
         run: |
           cd dist && zip -r ../thermal-print-studio-web.zip . && cd ..
 
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.x'
+          channel: 'stable'
+          cache: true
+
+      - name: Build Flutter Android APK
+        run: |
+          cd flutter_app
+          flutter pub get
+          flutter build apk --release
+          cp build/app/outputs/flutter-apk/app-release.apk ../ThermalStudio-Android.apk
+          cd ..
+
+      - name: Upload Android & Web Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-web-artifacts
+          path: |
+            ThermalStudio-Android.apk
+            thermal-print-studio-web.zip
+
+  build-macos:
+    name: Build macOS App
+    runs-on: macos-14
+    continue-on-error: true
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.x'
+          channel: 'stable'
+          cache: true
+
+      - name: Build Flutter macOS
+        run: |
+          cd flutter_app
+          flutter pub get
+          flutter build macos --release
+          cd build/macos/Build/Products/Release
+          zip -r ../../../../../ThermalStudio-macOS.zip thermal_studio.app
+          cd ../../../../../
+
+      - name: Upload macOS Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-artifacts
+          path: ThermalStudio-macOS.zip
+
+  build-windows:
+    name: Build Windows App
+    runs-on: windows-latest
+    continue-on-error: true
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.x'
+          channel: 'stable'
+          cache: true
+
+      - name: Build Flutter Windows
+        run: |
+          cd flutter_app
+          flutter pub get
+          flutter build windows --release
+          cd build/windows/x64/runner/Release
+          Compress-Archive -Path * -DestinationPath ../../../../../ThermalStudio-Windows.zip
+          cd ../../../../../
+
+      - name: Upload Windows Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-artifacts
+          path: ThermalStudio-Windows.zip
+
+  build-linux:
+    name: Build Linux App
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Linux build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.x'
+          channel: 'stable'
+          cache: true
+
+      - name: Build Flutter Linux
+        run: |
+          cd flutter_app
+          flutter pub get
+          flutter build linux --release
+          cd build/linux/x64/release/bundle
+          tar -czvf ../../../../../ThermalStudio-Linux.tar.gz *
+          cd ../../../../../
+
+      - name: Upload Linux Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-artifacts
+          path: ThermalStudio-Linux.tar.gz
+
+  release:
+    name: Publish GitHub Release
+    needs: [build-android-web, build-macos, build-windows, build-linux]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Download All Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+          merge-multiple: true
+
       - name: Determine Release Tag
         id: vars
         run: |
@@ -46,7 +186,11 @@ jobs:
             echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
           fi
 
-      - name: Create GitHub Release with Notes
+      - name: List Artifacts
+        run: |
+          ls -la release-assets
+
+      - name: Create GitHub Release with Assets
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.vars.outputs.tag }}
@@ -54,18 +198,20 @@ jobs:
           body: |
             ## Thermal Studio Release ${{ steps.vars.outputs.tag }}
 
-            ### 🚀 New Features & Enhancements
-            - **Google Calendar Direct Sign-In:** 1-click Google OAuth 2.0 sync to load live daily schedules directly onto thermal paper.
-            - **Calibrated Tiny Print Hardware Protocol:** Reverse-engineered from Tiny Print APK 1.3.87 with exact CRC8 checksums, quality concentration level 5 (Deepen / 9200 energy), and 50ms pacing.
-            - **Pocket Thermal Printer Support:** Tested and calibrated for Model X5, X5h, X6, C9, C15, PeriPage, and standard ESC/POS 58mm/80mm receipt printers.
-            - **Smart Binarization:** Adaptive luminance thresholding (`mean - 13`) and Floyd-Steinberg / Atkinson dithering algorithms.
-            - **Compact Tear Margins:** Optimized stepper motor paper advance to leave a clean, non-wasteful tear-off margin.
-            - **Multi-Platform:** Web Bluetooth, Web Serial, Electron Desktop, and PWA offline capabilities.
+            ### 🚀 Pure Dart / Flutter Native Architecture
+            - **100% Native Pure Dart:** Replaced webview/Capacitor with native Flutter for high performance, zero latency, and true cross-platform execution (Android, macOS, Windows, Linux).
+            - **Reverse-Engineered Tiny Print Hardware Engine:** Replicated exact Bluetooth Low Energy protocol (`0x51 0x78` header, CRC-8 polynomial 0x07, Deepen energy Level 5 at 9200us pulse, and 50ms chunk pacing).
+            - **Direct WYSIWYG Typewriter:** Click directly on paper to edit, format, and add blocks in-place without modal popups.
+            - **Minimal OS Aesthetic & Tactile Physics:** High-contrast OLED monochrome interface with smooth tactile press response and paper feed entrance animations.
+            - **Google Calendar Direct Sync:** One-tap agenda fetch and receipt layout for daily schedule printing.
+            - **Multi-Font Engine:** Mono (POS), Clean (Sans), Editorial (Serif), Retro (Arcade), Typewriter.
 
-            ### 📦 Assets Included
-            - `thermal-print-studio-web.zip`: Standalone production web build.
-          files: |
-            thermal-print-studio-web.zip
+            ### 📦 Release Assets
+            - `ThermalStudio-Android.apk`: Native Android Application.
+            - `ThermalStudio-macOS.zip`: Native macOS Application.
+            - `ThermalStudio-Windows.zip`: Native Windows Application.
+            - `ThermalStudio-Linux.tar.gz`: Native Linux Application.
+            - `thermal-print-studio-web.zip`: Standalone Web App Distribution.
+          files: release-assets/*
           draft: false
           prerelease: false
-
