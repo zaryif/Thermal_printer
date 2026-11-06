@@ -32,10 +32,8 @@ jobs:
         run: npm ci
 
       - name: Build Web Production Distribution
-        run: npm run build
-
-      - name: Archive Production Web Build
         run: |
+          npm run build
           cd dist && zip -r ../thermal-print-studio-web.zip . && cd ..
 
       - name: Setup Java
@@ -56,8 +54,8 @@ jobs:
           cd flutter_app
           flutter pub get
           flutter build apk --release
-          cp build/app/outputs/flutter-apk/app-release.apk ../ThermalStudio-Android.apk
           cd ..
+          cp flutter_app/build/app/outputs/flutter-apk/app-release.apk ThermalStudio-Android.apk
 
       - name: Upload Android & Web Artifacts
         uses: actions/upload-artifact@v4
@@ -66,36 +64,6 @@ jobs:
           path: |
             ThermalStudio-Android.apk
             thermal-print-studio-web.zip
-
-  build-macos:
-    name: Build macOS App
-    runs-on: macos-14
-    continue-on-error: true
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.x'
-          channel: 'stable'
-          cache: true
-
-      - name: Build Flutter macOS
-        run: |
-          cd flutter_app
-          flutter pub get
-          flutter build macos --release
-          cd build/macos/Build/Products/Release
-          zip -r ../../../../../ThermalStudio-macOS.zip thermal_studio.app
-          cd ../../../../../
-
-      - name: Upload macOS Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: macos-artifacts
-          path: ThermalStudio-macOS.zip
 
   build-windows:
     name: Build Windows App
@@ -113,13 +81,13 @@ jobs:
           cache: true
 
       - name: Build Flutter Windows
+        shell: pwsh
         run: |
           cd flutter_app
           flutter pub get
           flutter build windows --release
-          cd build/windows/x64/runner/Release
-          Compress-Archive -Path * -DestinationPath ../../../../../ThermalStudio-Windows.zip
-          cd ../../../../../
+          cd ..
+          Compress-Archive -Path flutter_app\build\windows\x64\runner\Release\* -DestinationPath ThermalStudio-Windows.zip
 
       - name: Upload Windows Artifact
         uses: actions/upload-artifact@v4
@@ -152,9 +120,8 @@ jobs:
           cd flutter_app
           flutter pub get
           flutter build linux --release
-          cd build/linux/x64/release/bundle
-          tar -czvf ../../../../../ThermalStudio-Linux.tar.gz *
-          cd ../../../../../
+          cd ..
+          tar -czvf ThermalStudio-Linux.tar.gz -C flutter_app/build/linux/x64/release/bundle .
 
       - name: Upload Linux Artifact
         uses: actions/upload-artifact@v4
@@ -164,12 +131,15 @@ jobs:
 
   release:
     name: Publish GitHub Release
-    needs: [build-android-web, build-macos, build-windows, build-linux]
+    needs: [build-android-web, build-windows, build-linux]
     if: always()
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+
+      - name: Create release directory
+        run: mkdir -p release-assets
 
       - name: Download All Artifacts
         uses: actions/download-artifact@v4
@@ -199,7 +169,7 @@ jobs:
             ## Thermal Studio Release ${{ steps.vars.outputs.tag }}
 
             ### 🚀 Pure Dart / Flutter Native Architecture
-            - **100% Native Pure Dart:** Replaced webview/Capacitor with native Flutter for high performance, zero latency, and true cross-platform execution (Android, macOS, Windows, Linux).
+            - **100% Native Pure Dart:** Replaced webview/Capacitor with native Flutter for high performance, zero latency, and true cross-platform execution (Android, Windows, Linux, macOS).
             - **Reverse-Engineered Tiny Print Hardware Engine:** Replicated exact Bluetooth Low Energy protocol (`0x51 0x78` header, CRC-8 polynomial 0x07, Deepen energy Level 5 at 9200us pulse, and 50ms chunk pacing).
             - **Direct WYSIWYG Typewriter:** Click directly on paper to edit, format, and add blocks in-place without modal popups.
             - **Minimal OS Aesthetic & Tactile Physics:** High-contrast OLED monochrome interface with smooth tactile press response and paper feed entrance animations.
@@ -208,10 +178,10 @@ jobs:
 
             ### 📦 Release Assets
             - `ThermalStudio-Android.apk`: Native Android Application.
-            - `ThermalStudio-macOS.zip`: Native macOS Application.
             - `ThermalStudio-Windows.zip`: Native Windows Application.
             - `ThermalStudio-Linux.tar.gz`: Native Linux Application.
             - `thermal-print-studio-web.zip`: Standalone Web App Distribution.
           files: release-assets/*
+          fail_on_unmatched_files: false
           draft: false
           prerelease: false
