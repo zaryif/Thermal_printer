@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 /// Pure Dart implementation of the Tiny Print (0x51 0x78) thermal printer hardware protocol
 /// Reverse-engineered directly from com.frogtosea.tinyPrint APK (BluetoothOrder.java & PrintDataUtils.java)
+/// Calibrated to match the exact Capacitor / Tiny Print reference encoder.
 class TinyPrintProtocol {
   static const int headerMagic0 = 0x51;
   static const int headerMagic1 = 0x78;
@@ -62,28 +63,27 @@ class TinyPrintProtocol {
     return buildPacket(0xA3, Uint8List.fromList([0x00]));
   }
 
-  /// Query battery percentage
-  static Uint8List getElectricQuantity() {
-    return buildPacket(0xBA, Uint8List.fromList([0x00]));
-  }
-
-  /// Sets print concentration / energy level (1 = Light, 3 = Moderate, 5 = Deepen)
+  /// Sets print concentration / energy level (Level 5 = Deepen)
   static Uint8List setConcentration(int level) {
     final int safeLevel = level.clamp(1, 5);
-    // In Tiny Print: Level 1 = 0x31 ('1'), Level 5 = 0x35 ('5')
     return buildPacket(0xA4, Uint8List.fromList([0x30 + safeLevel]));
   }
 
-  /// Custom pulse heating energy in microseconds (e.g. 9200us for rich dark blacks)
+  /// Custom pulse heating energy in microseconds (9200us for rich dark blacks)
   static Uint8List setCustomEnergy(int energyUs) {
     final int lsb = energyUs & 0xFF;
     final int msb = (energyUs >> 8) & 0xFF;
     return buildPacket(0xAF, Uint8List.fromList([lsb, msb]));
   }
 
-  /// Sets motor feed speed (10 - 20)
+  /// Sets motor feed speed (10 for X5h)
   static Uint8List setFeedSpeed(int speed) {
     return buildPacket(0xBD, Uint8List.fromList([speed.clamp(1, 40)]));
+  }
+
+  /// Sets print text mode: 0x51 0x78 0xBE 0x00 0x01 0x00 0x01 0x07 0xFF
+  static Uint8List setPrintTextMode() {
+    return buildPacket(0xBE, Uint8List.fromList([0x01]));
   }
 
   /// Paper feed command (advance paper by blank steps)
@@ -93,34 +93,72 @@ class TinyPrintProtocol {
     return buildPacket(0xA1, Uint8List.fromList([lsb, msb]));
   }
 
-  /// Package raster bitmap rows into standard Tiny Print print packets
-  /// In Tiny Print protocol: 0xA2 sends lines of raw 1-bit monochrome data (LSB first)
-  static List<Uint8List> packageRasterBitstream(
+  /// Encodes the entire print job into Tiny Print's byte stream.
+  /// Exactly matches the Capacitor / reference tinyPrintEncoder.ts implementation.
+  static Uint8List encodeTinyPrintStream(
     Uint8List monoBytes,
     int widthDots,
     int heightDots, {
-    int maxPacketPayload = 128,
+    int concentration = 5,
   }) {
-    final List<Uint8List> packets = [];
+    final int bytesPerLine = widthDots ~/ 8;
+    final BytesBuilder builder = BytesBuilder();
 
-    // 1. Initialise print session
-    packets.add(setConcentration(5)); // Deepen Level 5
-    packets.add(setCustomEnergy(9200)); // 9200us high-saturation pulse
-    packets.add(setFeedSpeed(10)); // Speed 10
+    // 1. Concentration / Blackening quality command (Level 5)
+    final int qualityByte = 0x30 + concentration.clamp(1, 5);
+    final int qualityCrc = crcTable[(0 ^ qualityByte) & 0xFF];
+    builder.add([0x51, 0x78, 0xA4, 0x00, 0x01, 0x00, qualityByte, qualityCrc, 0xFF]);
 
-    // 2. Chunk raster bits into 0xA2 packets
-    int offset = 0;
-    while (offset < monoBytes.length) {
-      final int chunkSize = (monoBytes.length - offset).clamp(0, maxPacketPayload);
-      final Uint8List chunk = monoBytes.sublist(offset, offset + chunkSize);
-      packets.add(buildPacket(0xA2, chunk));
-      offset += chunkSize;
+    // 2. Heating Energy Command: 9200us (0x23F0) -> [0xF0, 0x23]
+    final int textEnergy = concentration == 5 ? 9200 : 8000;
+    final int energyLo = textEnergy & 0xFF;
+    final int energyHi = (textEnergy >> 8) & 0xFF;
+    int energyCrc = crcTable[(0 ^ energyLo) & 0xFF];
+    energyCrc = crcTable[(energyCrc ^ energyHi) & 0xFF];
+    builder.add([0x51, 0x78, 0xAF, 0x00, 0x02, 0x00, energyLo, energyHi, energyCrc, 0xFF]);
+
+    // 3. Print Text Mode Command (0xBE)
+    builder.add([0x51, 0x78, 0xBE, 0x00, 0x01, 0x00, 0x01, 0x07, 0xFF]);
+
+    // 4. Print Speed Command (feedPaper 10 for X5h)
+    builder.add([0x51, 0x78, 0xBD, 0x00, 0x01, 0x00, 0x0A, 0x36, 0xFF]);
+
+    // 5. Uncompressed Raster Lines:
+    // Each line: 0x51 0x78 0xA2 0x00 [bytesPerLine LSB] [bytesPerLine MSB] [lineBytes] [crc] 0xFF
+    for (int row = 0; row < heightDots; row++) {
+      final int rowOffset = row * bytesPerLine;
+      if (rowOffset + bytesPerLine > monoBytes.length) break;
+
+      final Uint8List lineBytes = monoBytes.sublist(rowOffset, rowOffset + bytesPerLine);
+      int lineCrc = 0;
+      for (int i = 0; i < bytesPerLine; i++) {
+        lineCrc = crcTable[(lineCrc ^ lineBytes[i]) & 0xFF];
+      }
+
+      builder.add([
+        0x51,
+        0x78,
+        0xA2,
+        0x00,
+        bytesPerLine & 0xFF,
+        (bytesPerLine >> 8) & 0xFF,
+      ]);
+      builder.add(lineBytes);
+      builder.add([lineCrc, 0xFF]);
     }
 
-    // 3. Post-print tear-off feed
-    packets.add(feedPaperSteps(96)); // ~8-12mm tear feed
-    packets.add(getDevState());
+    // 6. Compact Bottom White Margin & Feed past tear blade
+    // Feed 30 steps
+    builder.add([0x51, 0x78, 0xBD, 0x00, 0x01, 0x00, 0x1E, 0x5A, 0xFF]);
 
-    return packets;
+    // Paper Feed (48 lines) x 2 = 12 mm advance past tear blade
+    final List<int> paperCmd = [0x51, 0x78, 0xA1, 0x00, 0x02, 0x00, 0x30, 0x00, 0xF9, 0xFF];
+    builder.add(paperCmd);
+    builder.add(paperCmd);
+
+    // Device status check
+    builder.add([0x51, 0x78, 0xA3, 0x00, 0x01, 0x00, 0x00, 0x00, 0xFF]);
+
+    return builder.toBytes();
   }
 }

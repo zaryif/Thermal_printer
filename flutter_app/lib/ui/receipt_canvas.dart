@@ -128,50 +128,53 @@ class ReceiptCanvas extends StatelessWidget {
 
     return Center(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
         physics: const BouncingScrollPhysics(),
-        child: Column(
-          children: [
-            // Top paper roll visual feed dispenser
-            Container(
-              width: maxPaperWidth > 420 ? 420 : maxPaperWidth,
-              height: 10,
-              decoration: BoxDecoration(
-                color: const Color(0xFF18181B),
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
-                border: Border.all(color: const Color(0xFF27272A)),
-              ),
-              child: Center(
-                child: Container(
-                  width: 120,
-                  height: 3,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF09090B),
-                    borderRadius: BorderRadius.circular(2),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(),
+          child: Column(
+            children: [
+              // Top paper roll visual feed dispenser
+              Container(
+                width: maxPaperWidth,
+                height: 10,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF18181B),
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+                  border: Border.all(color: const Color(0xFF27272A)),
+                ),
+                child: Center(
+                  child: Container(
+                    width: 120,
+                    height: 3,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF09090B),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
                   ),
                 ),
               ),
-            ),
 
-            // Live RepaintBoundary: Captured directly to monochrome bitmap for printing
-            RepaintBoundary(
-              key: receiptKey,
-              child: Container(
-                width: maxPaperWidth,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFAFAF9), // Off-white thermal stock
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.45),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
+              // Live RepaintBoundary: Captured directly to monochrome bitmap for printing
+              RepaintBoundary(
+                key: receiptKey,
+                child: Container(
+                  width: maxPaperWidth,
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFAFAF9), // Off-white thermal stock
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.45),
+                        blurRadius: 20,
+                        offset: const Offset(0, 10),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
                     if (blocks.isEmpty)
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 48),
@@ -291,6 +294,7 @@ class ReceiptCanvas extends StatelessWidget {
               ),
             ),
           ],
+        ),
         ),
       ),
     );

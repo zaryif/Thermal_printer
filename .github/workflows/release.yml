@@ -169,18 +169,22 @@ jobs:
             ## Thermal Printer OS Release ${{ steps.vars.outputs.tag }}
 
             ### 🚀 Pure Dart / Flutter Native Architecture
-            - **3-Row Command Tool Bar (Zero Horizontal Scrolling):** Replaced horizontal scrollbar with 3 distinct, equal-width tool rows (Todo, Note, Schedule, Expense / Photo, Alert, Quote, QR Code / Header, Table, Line, Gap) so every single tool is immediately visible and clickable with 1 tap.
-            - **Zero-Clipping Responsive Navbar:** Fixed right-side header overflow on mobile screens; Sync and Bluetooth Pair buttons are now guaranteed 100% visible with constrained device label width and auto-shrinking branding.
-            - **Google Calendar Multi-Calendar Aggregation:** Fetches events from both primary and all selected sub-calendars via Google Calendar API, forces auth cache refresh, requests `calendar.events.readonly`, and falls back to upcoming events if today is clear.
+            - **Calibrated Print Quality (Exact Capacitor Match):** Implemented exact 1.15 contrast scaling and 138 threshold binarization from the Capacitor engine (`printEngine.ts` & `print_perfect_friday.py`) for deep, pitch-black typography without fuzzy artifacts on text characters.
+            - **Full-Page Unclipped Rasterization:** Fixed paper width constraints with two-dimensional unbounded layout, ensuring the printer sees 100% of the receipt width (all 384 dots on 58mm / 576 dots on 80mm) and full vertical height from header to tear line without clipping.
+            - **Hardware FIFO Breather (177B / 50ms):** Streamlines 177-byte packet chunks with 50ms pacing and an extra 100ms pause every 25 chunks to prevent hardware buffer overruns on long prints.
+            - **Reordered Command Palette:** Re-organized tools logically as requested: First Note, then Todo, then Schedule, then Expense (Row 1), Alert, Photo, Quote, QR Code (Row 2), Header, Table, Line, Gap (Row 3).
+            - **3-Row Command Tool Bar (Zero Horizontal Scrolling):** 12 equal-width, immediately visible tools across 3 rows with 0 scrolling.
+            - **Zero-Clipping Responsive Navbar:** Sync and Bluetooth Pair buttons are 100% visible with constrained device label width and auto-shrinking branding.
+            - **Google Calendar Multi-Calendar Aggregation:** Fetches events from primary and all selected sub-calendars, forces auth cache refresh, requests `calendar.events.readonly`, and falls back to upcoming events if today is clear.
             - **⚡ 100% Guaranteed Secret iCal Link Sync:** Universal zero-configuration calendar sync via Google Calendar's private iCal link (or Apple Calendar / Outlook). No Google Cloud Console account, OAuth setup, or SHA-1 fingerprints needed. Persisted automatically in `SharedPreferences`.
-            - **Transparent Calendar Diagnostics:** Detailed error reporting and resolution hints for OAuth scopes and Google Cloud SHA-1 fingerprints, replacing silenced failures.
+            - **Transparent Calendar Diagnostics:** Detailed error reporting and resolution hints for OAuth scopes and Google Cloud SHA-1 fingerprints.
             - **100% Native Pure Dart:** Built with Flutter for high performance, zero latency, and true cross-platform execution (Android, Windows, Linux, macOS).
             - **Reverse-Engineered Tiny Print Hardware Engine:** Replicated exact Bluetooth Low Energy protocol (`0x51 0x78` header, CRC-8 polynomial 0x07, Deepen energy Level 5 at 9200us pulse, and 50ms chunk pacing).
             - **Unmissable Bottom Print Dock:** Large, prominent tactile master print button with real-time Bluetooth online/offline status and instant pairing.
             - **Photo & Image Upload Engine:** Added gallery/camera photo picker with automatic Floyd-Steinberg dithering and high-contrast thresholding for sharp thermal prints.
             - **Expense & Budget Tracker:** Itemized receipt block with real-time tax calculation and total computation.
             - **High-Contrast Important Callout:** Level 1 inverted memorandum box for urgent alerts and instructions.
-            - **Motivational Quotes & 1-Tap Shuffle:** Built-in focus quotes from Marcus Aurelius, Steve Jobs, Seneca, etc., with 1-tap quote shuffling.
+            - **Motivational Quotes & 1-Tap Shuffle:** Built-in focus quotes with 1-tap quote shuffling.
             - **Custom Gap / Spacing Controls:** Dedicated adjustable spacer blocks and ample vertical line-height so text never collides or gets hidden.
             - **Multi-Font Engine:** Mono (POS), Clean (Sans), Editorial (Serif), Retro (Arcade), Typewriter.
 

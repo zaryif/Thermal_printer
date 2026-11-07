@@ -268,13 +268,53 @@ class ThermalBleService {
     }
   }
 
-  /// Helper to send mono bytes via TinyPrintProtocol
+  /// Helper to send mono bytes via TinyPrintProtocol with exact Capacitor 177-byte pacing
   Future<bool> printMonoRaster(Uint8List monoBytes, int widthDots, int heightDots) async {
-    final packets = TinyPrintProtocol.packageRasterBitstream(
+    if (_writeCharacteristic == null || !isConnected) {
+      return false;
+    }
+
+    final Uint8List streamData = TinyPrintProtocol.encodeTinyPrintStream(
       monoBytes,
       widthDots,
       heightDots,
     );
-    return await printPackets(packets);
+
+    _setStatus(BleStatus.printing);
+    _printProgress = 0.0;
+    _progressController.add(0.0);
+
+    try {
+      const int chunkSize = 177; // Exact chunk size from Tiny Print / Capacitor service
+      final int totalBytes = streamData.length;
+      final int totalChunks = (totalBytes + chunkSize - 1) ~/ chunkSize;
+      int chunkCount = 0;
+
+      for (int i = 0; i < totalBytes; i += chunkSize) {
+        final int end = (i + chunkSize < totalBytes) ? i + chunkSize : totalBytes;
+        final Uint8List chunk = streamData.sublist(i, end);
+
+        final withoutResponse = _writeCharacteristic!.properties.writeWithoutResponse;
+        await _writeCharacteristic!.write(chunk, withoutResponse: withoutResponse);
+
+        chunkCount++;
+        _printProgress = chunkCount / totalChunks;
+        _progressController.add(_printProgress);
+
+        // Hardware chunk pacing to prevent head FIFO buffer overflow (50ms)
+        await Future.delayed(const Duration(milliseconds: 50));
+
+        // Periodic breather to prevent internal hardware FIFO buffer overrun on long prints
+        if (chunkCount % 25 == 0) {
+          await Future.delayed(const Duration(milliseconds: 100));
+        }
+      }
+
+      _setStatus(BleStatus.connected);
+      return true;
+    } catch (e) {
+      _setStatus(BleStatus.error);
+      return false;
+    }
   }
 }

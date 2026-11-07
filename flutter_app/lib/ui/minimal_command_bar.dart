@@ -9,16 +9,17 @@ class MinimalCommandBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // 12 Tools organized into 3 logical, immediately clickable rows (Zero scrolling required)
+    // Ordered as requested: First Note, then Todo, then Schedule, then Expense, etc.
     final row1 = [
-      {'type': 'tasklist', 'label': 'Todo', 'icon': Icons.check_circle_outline_rounded, 'color': const Color(0xFF10B981)},
       {'type': 'text', 'label': 'Note', 'icon': Icons.edit_note_rounded, 'color': const Color(0xFF38BDF8)},
+      {'type': 'tasklist', 'label': 'Todo', 'icon': Icons.check_circle_outline_rounded, 'color': const Color(0xFF10B981)},
       {'type': 'schedule', 'label': 'Schedule', 'icon': Icons.calendar_today_rounded, 'color': const Color(0xFFA78BFA)},
       {'type': 'expense', 'label': 'Expense', 'icon': Icons.receipt_long_rounded, 'color': const Color(0xFFF59E0B)},
     ];
 
     final row2 = [
-      {'type': 'photo', 'label': 'Photo', 'icon': Icons.add_photo_alternate_rounded, 'color': const Color(0xFFF472B6)},
       {'type': 'important', 'label': 'Alert', 'icon': Icons.priority_high_rounded, 'color': const Color(0xFFEF4444)},
+      {'type': 'photo', 'label': 'Photo', 'icon': Icons.add_photo_alternate_rounded, 'color': const Color(0xFFF472B6)},
       {'type': 'quote', 'label': 'Quote', 'icon': Icons.format_quote_rounded, 'color': const Color(0xFFFBBF24)},
       {'type': 'qrcode', 'label': 'QR Code', 'icon': Icons.qr_code_2_rounded, 'color': const Color(0xFF2DD4BF)},
     ];

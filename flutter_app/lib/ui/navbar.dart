@@ -239,10 +239,10 @@ class Navbar extends StatelessWidget {
                       },
                       items: const [
                         DropdownMenuItem(value: 'blank', child: Text('📄 Start from Blank')),
-                        DropdownMenuItem(value: 'agenda', child: Text('📅 Daily Focus & Agenda')),
-                        DropdownMenuItem(value: 'expense', child: Text('💰 Daily Expenses & Bill')),
                         DropdownMenuItem(value: 'notes', child: Text('📝 Quick Notes & Memo')),
                         DropdownMenuItem(value: 'todo', child: Text('✅ Priority Checklist')),
+                        DropdownMenuItem(value: 'agenda', child: Text('📅 Daily Focus & Agenda')),
+                        DropdownMenuItem(value: 'expense', child: Text('💰 Daily Expenses & Bill')),
                         DropdownMenuItem(value: 'important', child: Text('⚠️ Important Notice')),
                       ],
                     ),
