@@ -1,5 +1,6 @@
 import 'dart:async';
-import 'dart:typed_data';
+import 'dart:io' show Platform;
+import 'package:flutter/services.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import '../protocol/tiny_print_protocol.dart';
 
@@ -36,79 +37,174 @@ class ThermalBleService {
   bool get isConnected => _connectedDevice != null && _status == BleStatus.connected;
   String? get deviceName => _deviceName;
   double get printProgress => _printProgress;
+  BluetoothDevice? get connectedDevice => _connectedDevice;
+
+  StreamSubscription<List<ScanResult>>? _scanSub;
 
   void _setStatus(BleStatus s) {
     _status = s;
     _statusController.add(s);
   }
 
+  /// Get list of already bonded / system paired Bluetooth devices
+  Future<List<BluetoothDevice>> getBondedDevices() async {
+    try {
+      if (await FlutterBluePlus.isSupported == false) return [];
+      return await FlutterBluePlus.bondedDevices;
+    } catch (_) {
+      return [];
+    }
+  }
+
   /// Start scanning for nearby Bluetooth thermal printers
   Future<void> startScan() async {
-    if (await FlutterBluePlus.isSupported == false) {
+    try {
+      if (await FlutterBluePlus.isSupported == false) {
+        _setStatus(BleStatus.error);
+        return;
+      }
+
+      // Check Bluetooth power state
+      if (FlutterBluePlus.adapterStateNow != BluetoothAdapterState.on) {
+        try {
+          if (Platform.isAndroid) {
+            await FlutterBluePlus.turnOn();
+          }
+        } catch (_) {}
+      }
+
+      _setStatus(BleStatus.scanning);
+
+      // Clean up previous scan subscription if any
+      await _scanSub?.cancel();
+      _scanSub = FlutterBluePlus.scanResults.listen((results) {
+        _devicesController.add(results);
+      });
+
+      await FlutterBluePlus.startScan(
+        timeout: const Duration(seconds: 12),
+        androidUsesFineLocation: true,
+      );
+
+      if (_status == BleStatus.scanning) {
+        _setStatus(BleStatus.idle);
+      }
+    } catch (e) {
       _setStatus(BleStatus.error);
-      return;
-    }
-
-    _setStatus(BleStatus.scanning);
-
-    // Listen to scan results
-    FlutterBluePlus.scanResults.listen((results) {
-      _devicesController.add(results);
-    });
-
-    await FlutterBluePlus.startScan(
-      timeout: const Duration(seconds: 8),
-    );
-
-    if (_status == BleStatus.scanning) {
-      _setStatus(BleStatus.idle);
     }
   }
 
   /// Stop scanning
   Future<void> stopScan() async {
-    await FlutterBluePlus.stopScan();
-    if (_status == BleStatus.scanning) {
-      _setStatus(BleStatus.idle);
-    }
+    try {
+      await FlutterBluePlus.stopScan();
+      await _scanSub?.cancel();
+      _scanSub = null;
+      if (_status == BleStatus.scanning) {
+        _setStatus(BleStatus.idle);
+      }
+    } catch (_) {}
   }
 
-  /// Connect to selected Bluetooth thermal printer
-  Future<bool> connect(BluetoothDevice device) async {
+  /// Connect to selected Bluetooth thermal printer with priority characteristic discovery
+  Future<bool> connect(BluetoothDevice device, {String? fallbackName}) async {
     try {
       _setStatus(BleStatus.connecting);
-      await device.connect(autoConnect: false, timeout: const Duration(seconds: 10));
+
+      // Stop scan before connecting for BLE stability
+      await stopScan();
+
+      await device.connect(
+        autoConnect: false,
+        timeout: const Duration(seconds: 12),
+      );
 
       _connectedDevice = device;
-      _deviceName = device.platformName.isNotEmpty ? device.platformName : 'Thermal Printer';
+      
+      // Resolve device display name
+      if (device.platformName.isNotEmpty) {
+        _deviceName = device.platformName;
+      } else if (fallbackName != null && fallbackName.isNotEmpty && !fallbackName.contains('Unknown')) {
+        _deviceName = fallbackName;
+      } else {
+        _deviceName = 'Thermal Printer (${device.remoteId.str.length > 5 ? device.remoteId.str.substring(device.remoteId.str.length - 5) : device.remoteId.str})';
+      }
+
+      // Android BLE high-speed optimizations
+      if (Platform.isAndroid) {
+        try {
+          await device.requestMtu(512);
+        } catch (_) {}
+        try {
+          await device.requestConnectionPriority(
+            connectionPriorityRequest: ConnectionPriority.high,
+          );
+        } catch (_) {}
+      }
 
       // Discover GATT services & locate write characteristic
       final services = await device.discoverServices();
-      BluetoothCharacteristic? foundChar;
+      BluetoothCharacteristic? targetChar;
+
+      // Priority 1: Match known thermal printer write characteristic UUIDs
+      const knownWriteUuids = [
+        'AE01', // Tiny Print, GB01, Cat, WalkPrint
+        'FF02', // Standard POS
+        'AB01', // PeriPage / Paperang
+        'BEF2', // Phomemo
+        'E7810002', // Custom ESC/POS
+        '49535343', // ISSC transparent UART
+        '6E400002', // Nordic UART RX
+      ];
 
       for (var s in services) {
         for (var c in s.characteristics) {
           final uuid = c.uuid.toString().toUpperCase();
-          if (uuid.contains('AE01') ||
-              uuid.contains('FF02') ||
-              uuid.contains('AB01') ||
-              uuid.contains('E7810002') ||
-              uuid.contains('BEF2')) {
-            foundChar = c;
-            break;
+          for (var known in knownWriteUuids) {
+            if (uuid.contains(known)) {
+              targetChar = c;
+              break;
+            }
           }
-          if (c.properties.write || c.properties.writeWithoutResponse) {
-            foundChar ??= c;
-          }
+          if (targetChar != null) break;
         }
-        if (foundChar != null) break;
+        if (targetChar != null) break;
       }
 
-      if (foundChar == null) {
+      // Priority 2: Custom service characteristic with write permission (exclude Bluetooth SIG 0x1800-0x180F)
+      if (targetChar == null) {
+        for (var s in services) {
+          final sUuid = s.uuid.toString().toUpperCase();
+          if (sUuid.startsWith('000018')) continue; // Skip Generic Access, Battery, Device Info
+
+          for (var c in s.characteristics) {
+            if (c.properties.writeWithoutResponse || c.properties.write) {
+              targetChar = c;
+              break;
+            }
+          }
+          if (targetChar != null) break;
+        }
+      }
+
+      // Priority 3: Fallback to any characteristic that supports writing
+      if (targetChar == null) {
+        for (var s in services) {
+          for (var c in s.characteristics) {
+            if (c.properties.writeWithoutResponse || c.properties.write) {
+              targetChar = c;
+              break;
+            }
+          }
+          if (targetChar != null) break;
+        }
+      }
+
+      if (targetChar == null) {
         throw Exception('No writable thermal printer characteristic discovered on device');
       }
 
-      _writeCharacteristic = foundChar;
+      _writeCharacteristic = targetChar;
       _setStatus(BleStatus.connected);
 
       // Listen for disconnects
@@ -129,12 +225,14 @@ class ThermalBleService {
 
   /// Disconnect current printer
   Future<void> disconnect() async {
-    if (_connectedDevice != null) {
-      await _connectedDevice!.disconnect();
-      _connectedDevice = null;
-      _writeCharacteristic = null;
-      _setStatus(BleStatus.disconnected);
-    }
+    try {
+      if (_connectedDevice != null) {
+        await _connectedDevice!.disconnect();
+        _connectedDevice = null;
+        _writeCharacteristic = null;
+        _setStatus(BleStatus.disconnected);
+      }
+    } catch (_) {}
   }
 
   /// Stream packaged Tiny Print packets to printer with calibrated 50ms pacing
