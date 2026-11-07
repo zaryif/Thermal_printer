@@ -169,7 +169,10 @@ jobs:
             ## Thermal Printer OS Release ${{ steps.vars.outputs.tag }}
 
             ### 🚀 Pure Dart / Flutter Native Architecture
-            - **Google Calendar & iCal Multi-Sync Modal:** Sleek tabbed interface supporting ⚡ 100% reliable secret iCal link sync (zero-config, no OAuth/SHA-1 setup needed), 🌐 native Google OAuth sign-in with granular scope verification, and 📝 quick plain-text schedule parser.
+            - **3-Row Command Tool Bar (Zero Horizontal Scrolling):** Replaced horizontal scrollbar with 3 distinct, equal-width tool rows (Todo, Note, Schedule, Expense / Photo, Alert, Quote, QR Code / Header, Table, Line, Gap) so every single tool is immediately visible and clickable with 1 tap.
+            - **Zero-Clipping Responsive Navbar:** Fixed right-side header overflow on mobile screens; Sync and Bluetooth Pair buttons are now guaranteed 100% visible with constrained device label width and auto-shrinking branding.
+            - **Google Calendar Multi-Calendar Aggregation:** Fetches events from both primary and all selected sub-calendars via Google Calendar API, forces auth cache refresh, requests `calendar.events.readonly`, and falls back to upcoming events if today is clear.
+            - **⚡ 100% Guaranteed Secret iCal Link Sync:** Universal zero-configuration calendar sync via Google Calendar's private iCal link (or Apple Calendar / Outlook). No Google Cloud Console account, OAuth setup, or SHA-1 fingerprints needed. Persisted automatically in `SharedPreferences`.
             - **Transparent Calendar Diagnostics:** Detailed error reporting and resolution hints for OAuth scopes and Google Cloud SHA-1 fingerprints, replacing silenced failures.
             - **100% Native Pure Dart:** Built with Flutter for high performance, zero latency, and true cross-platform execution (Android, Windows, Linux, macOS).
             - **Reverse-Engineered Tiny Print Hardware Engine:** Replicated exact Bluetooth Low Energy protocol (`0x51 0x78` header, CRC-8 polynomial 0x07, Deepen energy Level 5 at 9200us pulse, and 50ms chunk pacing).

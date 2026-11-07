@@ -31,141 +31,156 @@ class Navbar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: const Color(0xFF09090B),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: const BoxDecoration(
         border: Border(bottom: BorderSide(color: Color(0xFF27272A))),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Row 1: Header Brand & Quick Connectivity Status
+          // Row 1: Brand & Top Connectivity / Action Pills (Guaranteed zero-clipping)
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Branding
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 28,
-                    height: 28,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF18181B),
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(color: const Color(0xFF27272A)),
-                    ),
-                    child: const Icon(Icons.print, size: 16, color: Color(0xFFF59E0B)),
-                  ),
-                  const SizedBox(width: 8),
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            'THERMAL PRINTER',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                          SizedBox(width: 4),
-                          Text(
-                            'OS',
-                            style: TextStyle(
-                              fontSize: 9,
-                              fontWeight: FontWeight.w900,
-                              color: Color(0xFFF59E0B),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Text(
-                        'Direct Hardware Bitstream',
-                        style: TextStyle(fontSize: 9, color: Colors.white38),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-
-              // Top Right Actions (Sync + BLE)
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Google Calendar Sync
-                  TactilePressWidget(
-                    onTap: onOpenCalendar,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+              // Logo & Title (Flexible so right buttons are NEVER pushed off screen)
+              Expanded(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 26,
+                      height: 26,
                       decoration: BoxDecoration(
                         color: const Color(0xFF18181B),
                         borderRadius: BorderRadius.circular(6),
                         border: Border.all(color: const Color(0xFF27272A)),
                       ),
-                      child: const Row(
+                      child: const Icon(Icons.print_rounded, size: 15, color: Color(0xFFF59E0B)),
+                    ),
+                    const SizedBox(width: 7),
+                    Flexible(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.calendar_month, size: 13, color: Colors.lightBlueAccent),
-                          SizedBox(width: 4),
-                          Text(
-                            'Sync',
-                            style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Colors.white70),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Flexible(
+                                child: Text(
+                                  'THERMAL OS',
+                                  style: TextStyle(
+                                    fontSize: 11.5,
+                                    fontWeight: FontWeight.w900,
+                                    color: Colors.white,
+                                    letterSpacing: 0.6,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFF59E0B).withValues(alpha: 0.2),
+                                  borderRadius: BorderRadius.circular(3),
+                                ),
+                                child: const Text(
+                                  'PRO',
+                                  style: TextStyle(
+                                    fontSize: 8,
+                                    fontWeight: FontWeight.w900,
+                                    color: Color(0xFFF59E0B),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const Text(
+                            'Pocket & POS',
+                            style: TextStyle(fontSize: 8.5, color: Colors.white38),
                           ),
                         ],
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 6),
+                  ],
+                ),
+              ),
 
-                  // Bluetooth Pair / Status Pill
-                  TactilePressWidget(
-                    onTap: onOpenBleDialog,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF18181B),
-                        borderRadius: BorderRadius.circular(6),
-                        border: Border.all(
-                          color: bleService.isConnected
-                              ? Colors.greenAccent.withValues(alpha: 0.6)
-                              : const Color(0xFFF59E0B).withValues(alpha: 0.6),
-                        ),
+              const SizedBox(width: 6),
+
+              // Calendar Sync Pill
+              TactilePressWidget(
+                onTap: onOpenCalendar,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF18181B),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: Colors.lightBlueAccent.withValues(alpha: 0.6)),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.calendar_month_rounded, size: 13, color: Colors.lightBlueAccent),
+                      SizedBox(width: 4),
+                      Text(
+                        'Sync',
+                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.lightBlueAccent),
                       ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            bleService.isConnected ? Icons.bluetooth_connected : Icons.bluetooth,
-                            size: 13,
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(width: 5),
+
+              // Bluetooth Pair / Status Pill
+              TactilePressWidget(
+                onTap: onOpenBleDialog,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF18181B),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(
+                      color: bleService.isConnected
+                          ? Colors.greenAccent.withValues(alpha: 0.7)
+                          : const Color(0xFFF59E0B).withValues(alpha: 0.7),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        bleService.isConnected ? Icons.bluetooth_connected_rounded : Icons.bluetooth_rounded,
+                        size: 13,
+                        color: bleService.isConnected ? Colors.greenAccent : const Color(0xFFF59E0B),
+                      ),
+                      const SizedBox(width: 4),
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 75),
+                        child: Text(
+                          bleService.isConnected
+                              ? (bleService.deviceName ?? 'Ready')
+                              : 'Pair',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
                             color: bleService.isConnected ? Colors.greenAccent : const Color(0xFFF59E0B),
                           ),
-                          const SizedBox(width: 4),
-                          Text(
-                            bleService.isConnected
-                                ? (bleService.deviceName ?? 'Ready')
-                                : 'Connect',
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              color: bleService.isConnected ? Colors.greenAccent : const Color(0xFFF59E0B),
-                            ),
-                          ),
-                        ],
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ],
           ),
 
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
 
-          // Row 2: Fluid Horizontal Scroll Bar (Zero Overflow Guarantee)
+          // Row 2: Page Setup Controls (Blank, Templates, 58mm/80mm, Font)
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             physics: const BouncingScrollPhysics(),
@@ -176,7 +191,7 @@ class Navbar extends StatelessWidget {
                 TactilePressWidget(
                   onTap: onStartBlank,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: const Color(0xFF18181B),
                       borderRadius: BorderRadius.circular(6),
@@ -185,7 +200,7 @@ class Navbar extends StatelessWidget {
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.note_add_outlined, size: 13, color: Colors.white70),
+                        Icon(Icons.note_add_outlined, size: 12, color: Colors.white70),
                         SizedBox(width: 4),
                         Text(
                           'Blank',
@@ -195,7 +210,7 @@ class Navbar extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(width: 6),
+                const SizedBox(width: 5),
 
                 // Preset Templates Dropdown
                 Container(
@@ -204,7 +219,7 @@ class Navbar extends StatelessWidget {
                     borderRadius: BorderRadius.circular(6),
                     border: Border.all(color: const Color(0xFF27272A)),
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
+                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 1),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
                       value: null,
@@ -213,7 +228,7 @@ class Navbar extends StatelessWidget {
                         children: [
                           Icon(Icons.auto_awesome, size: 12, color: Color(0xFFF59E0B)),
                           SizedBox(width: 4),
-                          Text('Templates', style: TextStyle(fontSize: 11, color: Color(0xFFF59E0B), fontWeight: FontWeight.bold)),
+                          Text('Templates', style: TextStyle(fontSize: 10, color: Color(0xFFF59E0B), fontWeight: FontWeight.bold)),
                         ],
                       ),
                       isDense: true,
@@ -233,7 +248,7 @@ class Navbar extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(width: 6),
+                const SizedBox(width: 5),
 
                 // Paper Width Toggle (58mm / 80mm)
                 Container(
@@ -259,7 +274,7 @@ class Navbar extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(width: 6),
+                const SizedBox(width: 5),
 
                 // Font Selector Dropdown
                 Container(
@@ -268,14 +283,14 @@ class Navbar extends StatelessWidget {
                     borderRadius: BorderRadius.circular(6),
                     border: Border.all(color: const Color(0xFF27272A)),
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
+                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 1),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<ReceiptFontFamily>(
                       value: fontFamily,
                       isDense: true,
                       dropdownColor: const Color(0xFF18181B),
                       icon: const Icon(Icons.arrow_drop_down, color: Color(0xFFF59E0B), size: 16),
-                      style: const TextStyle(fontSize: 11, color: Colors.white, fontWeight: FontWeight.w600),
+                      style: const TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.w600),
                       onChanged: (val) {
                         if (val != null) onFontFamilyChange(val);
                       },
@@ -307,7 +322,7 @@ class Navbar extends StatelessWidget {
       child: AnimatedContainer(
         duration: AppMotion.quickFeedback,
         curve: AppMotion.enterCurve,
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
         decoration: BoxDecoration(
           color: isSelected ? const Color(0xFFF59E0B) : Colors.transparent,
           borderRadius: BorderRadius.circular(4),
@@ -315,7 +330,7 @@ class Navbar extends StatelessWidget {
         child: Text(
           label,
           style: TextStyle(
-            fontSize: 10,
+            fontSize: 9.5,
             fontWeight: FontWeight.bold,
             color: isSelected ? const Color(0xFF09090B) : Colors.white60,
           ),

@@ -199,6 +199,7 @@ class GoogleCalendarService {
 
   final GoogleSignIn _googleSignIn = GoogleSignIn(
     scopes: <String>[
+      calendar.CalendarApi.calendarEventsReadonlyScope,
       calendar.CalendarApi.calendarReadonlyScope,
     ],
   );
@@ -225,13 +226,17 @@ class GoogleCalendarService {
       _currentUser = account;
       if (account == null) return false;
 
-      // Verify and request calendar readonly scope
-      final hasScope = await _googleSignIn.canAccessScopes([calendar.CalendarApi.calendarReadonlyScope]);
+      // Clear stale auth cache on new sign in
+      await account.clearAuthCache();
+
+      // Verify and request calendar scopes
+      final hasScope = await _googleSignIn.canAccessScopes([
+        calendar.CalendarApi.calendarEventsReadonlyScope,
+      ]);
       if (!hasScope) {
-        final granted = await _googleSignIn.requestScopes([calendar.CalendarApi.calendarReadonlyScope]);
-        if (!granted) {
-          debugPrint('Calendar scope was not granted by user.');
-        }
+        await _googleSignIn.requestScopes([
+          calendar.CalendarApi.calendarEventsReadonlyScope,
+        ]);
       }
       return true;
     } catch (e) {
@@ -250,7 +255,7 @@ class GoogleCalendarService {
     }
   }
 
-  /// Fetch today's agenda from primary Google Calendar with full diagnostic result
+  /// Fetch today's agenda from primary Google Calendar & sub-calendars
   Future<CalendarFetchResult> fetchGoogleEventsDetailed({DateTime? targetDate}) async {
     if (_currentUser == null) {
       final ok = await signIn();
@@ -266,15 +271,22 @@ class GoogleCalendarService {
     }
 
     try {
-      // 1. Check scopes before calling API
-      final hasScope = await _googleSignIn.canAccessScopes([calendar.CalendarApi.calendarReadonlyScope]);
+      // 1. Force refresh auth token
+      await _currentUser!.clearAuthCache();
+
+      // 2. Check and request calendar scopes
+      final hasScope = await _googleSignIn.canAccessScopes([
+        calendar.CalendarApi.calendarEventsReadonlyScope,
+      ]);
       if (!hasScope) {
-        final granted = await _googleSignIn.requestScopes([calendar.CalendarApi.calendarReadonlyScope]);
+        final granted = await _googleSignIn.requestScopes([
+          calendar.CalendarApi.calendarEventsReadonlyScope,
+        ]);
         if (!granted) {
           return CalendarFetchResult(
             success: false,
             items: [],
-            errorMessage: 'Calendar permission denied. Please grant calendar access to sync events.',
+            errorMessage: 'Calendar permission was not granted. Please approve calendar access.',
             accountEmail: _currentUser?.email,
             source: 'google_oauth',
           );
@@ -299,82 +311,125 @@ class GoogleCalendarService {
       final startOfDay = DateTime(target.year, target.month, target.day, 0, 0, 0);
       final endOfDay = DateTime(target.year, target.month, target.day, 23, 59, 59);
 
-      // Widen search window (-12h to +24h UTC) to prevent timezone boundary clipping
-      final events = await calendarApi.events.list(
-        'primary',
-        timeMin: startOfDay.subtract(const Duration(hours: 12)).toUtc(),
-        timeMax: endOfDay.add(const Duration(hours: 24)).toUtc(),
-        singleEvents: true,
-        orderBy: 'startTime',
-      );
+      final List<calendar.Event> allEvents = [];
 
-      final rawList = events.items ?? [];
+      // Query primary calendar
+      try {
+        final primaryEvents = await calendarApi.events.list(
+          'primary',
+          timeMin: startOfDay.subtract(const Duration(hours: 12)).toUtc(),
+          timeMax: endOfDay.add(const Duration(hours: 24)).toUtc(),
+          singleEvents: true,
+          orderBy: 'startTime',
+        );
+        allEvents.addAll(primaryEvents.items ?? []);
+      } catch (e) {
+        debugPrint('Primary calendar fetch notice: $e');
+      }
+
+      // Also query all selected sub-calendars
+      try {
+        final calList = await calendarApi.calendarList.list();
+        for (var cal in (calList.items ?? [])) {
+          if (cal.id != null && cal.id != 'primary' && (cal.selected == true || cal.primary == true)) {
+            final subEvents = await calendarApi.events.list(
+              cal.id!,
+              timeMin: startOfDay.subtract(const Duration(hours: 12)).toUtc(),
+              timeMax: endOfDay.add(const Duration(hours: 24)).toUtc(),
+              singleEvents: true,
+              orderBy: 'startTime',
+            );
+            allEvents.addAll(subEvents.items ?? []);
+          }
+        }
+      } catch (e) {
+        debugPrint('Calendar list notice: $e');
+      }
+
+      final Set<String> seenKeys = {};
       final List<ScheduleItem> todayItems = [];
+      final List<ScheduleItem> upcomingItems = [];
       final timeFormatter = DateFormat('hh:mm a');
 
-      for (var item in rawList) {
+      for (var item in allEvents) {
         final summary = item.summary ?? 'Scheduled Event';
         String timeStr = 'ALL DAY';
         bool isTargetDay = false;
+        DateTime? sortDate;
 
         if (item.start?.dateTime != null) {
           final local = item.start!.dateTime!.toLocal();
+          sortDate = local;
           if (local.year == target.year && local.month == target.month && local.day == target.day) {
             isTargetDay = true;
             timeStr = timeFormatter.format(local);
           }
         } else if (item.start?.date != null) {
-          // All-day event: EventDateTime.date is already DateTime
           final eventDate = item.start!.date!;
+          sortDate = eventDate;
           if (eventDate.year == target.year && eventDate.month == target.month && eventDate.day == target.day) {
             isTargetDay = true;
             timeStr = 'ALL DAY';
           }
         }
 
+        final dedupKey = '${summary}_$timeStr';
+        if (seenKeys.contains(dedupKey)) continue;
+        seenKeys.add(dedupKey);
+
+        final schedItem = ScheduleItem(
+          id: item.id ?? UniqueKey().toString(),
+          time: timeStr,
+          title: summary,
+          done: false,
+        );
+
         if (isTargetDay) {
-          todayItems.add(
-            ScheduleItem(
-              id: item.id ?? UniqueKey().toString(),
-              time: timeStr,
-              title: summary,
-              done: false,
-            ),
-          );
+          todayItems.add(schedItem);
+        } else if (sortDate != null && sortDate.isAfter(startOfDay)) {
+          upcomingItems.add(schedItem);
         }
       }
 
-      // If no events strictly on today, take upcoming items from the query window
-      if (todayItems.isEmpty && rawList.isNotEmpty) {
-        for (var item in rawList.take(6)) {
-          final summary = item.summary ?? 'Upcoming Event';
-          String timeStr = 'ALL DAY';
-          if (item.start?.dateTime != null) {
-            timeStr = timeFormatter.format(item.start!.dateTime!.toLocal());
-          }
-          todayItems.add(
-            ScheduleItem(
-              id: item.id ?? UniqueKey().toString(),
-              time: timeStr,
-              title: summary,
-              done: false,
-            ),
-          );
-        }
+      // Sort today's items: ALL DAY first, then chronological
+      todayItems.sort((a, b) {
+        if (a.time == 'ALL DAY' && b.time != 'ALL DAY') return -1;
+        if (b.time == 'ALL DAY' && a.time != 'ALL DAY') return 1;
+        return a.time.compareTo(b.time);
+      });
+
+      if (todayItems.isNotEmpty) {
+        return CalendarFetchResult(
+          success: true,
+          items: todayItems,
+          accountEmail: _currentUser?.email,
+          source: 'google_oauth',
+        );
+      }
+
+      // Fallback: If today is clear, import upcoming items
+      if (upcomingItems.isNotEmpty) {
+        return CalendarFetchResult(
+          success: true,
+          items: upcomingItems.take(6).toList(),
+          accountEmail: _currentUser?.email,
+          source: 'google_oauth',
+          errorMessage: 'No events found for today. Showing upcoming events from your calendar.',
+        );
       }
 
       return CalendarFetchResult(
         success: true,
-        items: todayItems,
+        items: [],
         accountEmail: _currentUser?.email,
-        errorMessage: todayItems.isEmpty ? 'No events found on Google Calendar for today.' : null,
+        errorMessage: 'No events found on Google Calendar for today or upcoming days.',
         source: 'google_oauth',
       );
     } catch (e) {
       debugPrint('Google Calendar API Error: $e');
       String friendlyError = e.toString();
       if (friendlyError.contains('403') || friendlyError.contains('insufficient') || friendlyError.contains('PERMISSION_DENIED')) {
-        friendlyError = 'Permission Denied (403): Google Calendar scopes not authorized or SHA-1 certificate fingerprint is unregistered in Google Cloud Console.\n\nTip: Use the "⚡ iCal Link" tab for 100% reliable zero-config sync!';
+        friendlyError = 'Permission Denied (403): Google Calendar scopes not granted or SHA-1 is unregistered in Google Cloud.\n\nTip: Use the "⚡ iCal Link" tab for 100% reliable zero-config sync!';
       } else if (friendlyError.contains('ApiException: 10') || friendlyError.contains('12500')) {
         friendlyError = 'Google Play Services configuration error (SHA-1 fingerprint missing in Google Cloud).\n\nTip: Use the "⚡ iCal Link" tab for instant sync without Google Cloud setup!';
       }

@@ -14,13 +14,13 @@ BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//Google Inc//Google Calendar 70.9054//EN
 BEGIN:VEVENT
-DTSTART:${yearStr}${monthStr}${dayStr}T090000Z
-DTEND:${yearStr}${monthStr}${dayStr}T100000Z
+DTSTART:$yearStr$monthStr${dayStr}T090000Z
+DTEND:$yearStr$monthStr${dayStr}T100000Z
 SUMMARY:Morning Dev Standup
 DESCRIPTION:Daily engineering team sync
 END:VEVENT
 BEGIN:VEVENT
-DTSTART;VALUE=DATE:${yearStr}${monthStr}${dayStr}
+DTSTART;VALUE=DATE:$yearStr$monthStr$dayStr
 SUMMARY:Hardware Testing Day
 END:VEVENT
 END:VCALENDAR
