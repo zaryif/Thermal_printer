@@ -91,9 +91,9 @@ class _ThermalStudioScreenState extends State<ThermalStudioScreen> {
       GapBlock(id: 'gap_1', height: 12),
       QuoteBlock(
         id: 'qt_1',
-        quote: 'The obstacle in the path becomes the path. Within every obstacle is an opportunity.',
-        author: 'Marcus Aurelius',
-        category: 'Discipline',
+        quote: 'Think & Change.',
+        author: 'MD. ZARIF AZFAR',
+        category: 'Vision',
       ),
       GapBlock(id: 'gap_2', height: 12),
       ScheduleBlock(

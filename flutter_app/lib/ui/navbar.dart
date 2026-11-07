@@ -30,9 +30,9 @@ class Navbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: const Color(0xFF09090B),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: const BoxDecoration(
+        color: Color(0xFF09090B),
         border: Border(bottom: BorderSide(color: Color(0xFF27272A))),
       ),
       child: Column(

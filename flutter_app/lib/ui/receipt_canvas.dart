@@ -35,14 +35,29 @@ class ReceiptCanvas extends StatelessWidget {
 
   static const List<Map<String, String>> curatedQuotes = [
     {
+      'quote': 'Think & Change.',
+      'author': 'MD. ZARIF AZFAR',
+      'category': 'Vision',
+    },
+    {
       'quote': 'The obstacle in the path becomes the path. Never forget, within every obstacle is an opportunity.',
       'author': 'Marcus Aurelius',
       'category': 'Stoicism',
     },
     {
+      'quote': 'Stay hungry, stay foolish. Make a dent in the universe.',
+      'author': 'Steve Jobs',
+      'category': 'Innovation',
+    },
+    {
       'quote': 'We are what we repeatedly do. Excellence, then, is not an act, but a habit.',
       'author': 'Will Durant',
       'category': 'Focus',
+    },
+    {
+      'quote': 'It is not that we have a short time to live, but that we waste a lot of it.',
+      'author': 'Seneca',
+      'category': 'Discipline',
     },
     {
       'quote': 'Focus is a matter of deciding what things you are NOT going to do.',
@@ -57,7 +72,7 @@ class ReceiptCanvas extends StatelessWidget {
     {
       'quote': 'Small daily improvements over time lead to stunning results.',
       'author': 'Robin Sharma',
-      'category': 'Discipline',
+      'category': 'Growth',
     },
     {
       'quote': 'Do what you can, with what you have, where you are.',
@@ -239,6 +254,23 @@ class ReceiptCanvas extends StatelessWidget {
                                         child: Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
+                                            if (block is QuoteBlock)
+                                              InkWell(
+                                                onTap: () {
+                                                  final next = (ReceiptCanvas.curatedQuotes.toList()..shuffle()).first;
+                                                  block.quote = next['quote']!;
+                                                  block.author = next['author']!;
+                                                  block.category = next['category']!;
+                                                  onUpdateBlock(block);
+                                                },
+                                                child: const Tooltip(
+                                                  message: 'Shuffle Quote',
+                                                  child: Padding(
+                                                    padding: EdgeInsets.all(2),
+                                                    child: Icon(Icons.shuffle_rounded, size: 14, color: Colors.amber),
+                                                  ),
+                                                ),
+                                              ),
                                             if (index > 0)
                                               InkWell(
                                                 onTap: () => onMoveBlock(block.id, 'up'),
@@ -509,6 +541,7 @@ class ReceiptCanvas extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             TextFormField(
+              key: ValueKey('${block.id}_q_${block.quote}'),
               initialValue: block.quote,
               maxLines: null,
               keyboardType: TextInputType.multiline,
@@ -524,44 +557,20 @@ class ReceiptCanvas extends StatelessWidget {
               },
             ),
             const SizedBox(height: 4),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    initialValue: '— ${block.author}',
-                    style: getBaseTextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey.shade800),
-                    decoration: const InputDecoration(
-                      isDense: true,
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                    onChanged: (val) {
-                      block.author = val.replaceAll('—', '').trim();
-                      onUpdateBlock(block);
-                    },
-                  ),
-                ),
-                InkWell(
-                  onTap: () {
-                    final next = (curatedQuotes.toList()..shuffle()).first;
-                    block.quote = next['quote']!;
-                    block.author = next['author']!;
-                    onUpdateBlock(block);
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: Colors.black12,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      '🎲 Shuffle',
-                      style: getBaseTextStyle(fontSize: 9, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-              ],
+            TextFormField(
+              key: ValueKey('${block.id}_a_${block.author}'),
+              initialValue: '— ${block.author}',
+              textAlign: TextAlign.right,
+              style: getBaseTextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey.shade800),
+              decoration: const InputDecoration(
+                isDense: true,
+                border: InputBorder.none,
+                contentPadding: EdgeInsets.zero,
+              ),
+              onChanged: (val) {
+                block.author = val.replaceAll('—', '').trim();
+                onUpdateBlock(block);
+              },
             ),
           ],
         ),
