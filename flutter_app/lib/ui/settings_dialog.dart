@@ -245,7 +245,7 @@ class SettingsDialog extends StatelessWidget {
                               style: TextStyle(fontSize: 11, color: Color(0xFFA1A1AA)),
                             ),
                             Text(
-                              'Pure Flutter & Tiny Print Protocol',
+                              'Pure Flutter & Universal Thermal Engine',
                               style: TextStyle(fontSize: 11, color: Colors.white70),
                             ),
                           ],
@@ -259,7 +259,7 @@ class SettingsDialog extends StatelessWidget {
                             ),
                             Expanded(
                               child: Text(
-                                'Tiny Print, Cat, PeriPage, ESC/POS 58/80mm',
+                                'Pocket, Cat, POS, and Standard 58mm/80mm Printers',
                                 style: TextStyle(fontSize: 11, color: Colors.white70),
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -335,3 +335,4 @@ class SettingsDialog extends StatelessWidget {
     );
   }
 }
+

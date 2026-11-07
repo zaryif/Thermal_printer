@@ -132,8 +132,8 @@ class _BleScannerDialogState extends State<BleScannerDialog> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildCategory('Pocket & Mini Thermal (Tiny Print Protocol)', [
-                  '• Tiny Print / Fun Print / iPrint / LuckJingle',
+                _buildCategory('Pocket & Portable Thermal Printers', [
+                  '• Portable Pocket / Cat / FunPrint / iPrint / LuckJingle',
                   '• PeriPage: A6, A9, A9 Pro, A40, A40+',
                   '• Paperang: P1, P1S, P2, P2S, P3',
                   '• Cat Printers: C9, C13, C15, C17, C19, C20',

@@ -200,7 +200,7 @@ class _ThermalStudioScreenState extends State<ThermalStudioScreen> {
             GapBlock(id: 'gap_n1', height: 12),
             TextBlock(
               id: 'txt_n1',
-              text: '1. Verified Tiny Print 0x51 0x78 BLE framing.\n2. Calibrated 50ms chunk delay prevents FIFO overflow.\n3. Floyd-Steinberg error diffusion renders crisp photos.',
+              text: '1. Verified high-density BLE packet framing.\n2. Calibrated 50ms chunk pacing prevents buffer overflow.\n3. Floyd-Steinberg error diffusion renders crisp photos.',
               fontSize: 11,
             ),
             GapBlock(id: 'gap_n2', height: 12),

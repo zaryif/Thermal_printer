@@ -60,7 +60,7 @@ class OnboardingDialog extends StatelessWidget {
               _buildStepRow(
                 icon: Icons.bluetooth_searching_rounded,
                 title: 'Universal Bluetooth Connect',
-                description: 'Instant zero-driver discovery and pairing for Tiny Print, Cat, and standard ESC/POS printers.',
+                description: 'Instant zero-driver discovery and pairing for portable pocket, mini, and standard ESC/POS printers.',
               ),
               const SizedBox(height: 16),
 
@@ -160,3 +160,4 @@ class OnboardingDialog extends StatelessWidget {
     );
   }
 }
+
