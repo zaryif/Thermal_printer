@@ -84,7 +84,6 @@ class MinimalCommandBar extends StatelessWidget {
   }
 
   Widget _buildToolButton(Map<String, dynamic> tool) {
-    final color = tool['color'] as Color;
     return Expanded(
       child: TactilePressWidget(
         onTap: () => onAddBlock(tool['type'] as String),
@@ -94,7 +93,7 @@ class MinimalCommandBar extends StatelessWidget {
             color: const Color(0xFF18181B),
             borderRadius: BorderRadius.circular(6),
             border: Border.all(
-              color: color.withValues(alpha: 0.35),
+              color: const Color(0xFF27272A),
               width: 1,
             ),
           ),
@@ -102,15 +101,15 @@ class MinimalCommandBar extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(tool['icon'] as IconData, size: 12, color: color),
+              Icon(tool['icon'] as IconData, size: 12, color: const Color(0xFFA1A1AA)),
               const SizedBox(width: 4),
               Flexible(
                 child: Text(
                   '+ ${tool['label']}',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    color: color,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFFF4F4F5),
                     letterSpacing: -0.2,
                   ),
                   maxLines: 1,

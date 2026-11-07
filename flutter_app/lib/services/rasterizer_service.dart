@@ -33,8 +33,12 @@ class RasterizerService {
       throw Exception('RepaintBoundary not found for receipt key');
     }
 
-    // 1. Capture live Flutter widget to uncompressed RGBA image at 1:1 pixel scale
-    final ui.Image image = await boundary.toImage(pixelRatio: 1.0);
+    // Determine precise pixel ratio to render directly at native hardware dot width
+    final double actualWidth = boundary.size.width;
+    final double pixelRatio = actualWidth > 0 ? (targetWidthDots / actualWidth) : 1.0;
+
+    // 1. Capture live Flutter widget to uncompressed RGBA image at target dot density
+    final ui.Image image = await boundary.toImage(pixelRatio: pixelRatio);
     final ByteData? byteData =
         await image.toByteData(format: ui.ImageByteFormat.rawRgba);
 
@@ -55,12 +59,13 @@ class RasterizerService {
       final int targetRowOffset = y * bytesPerRow;
 
       for (int x = 0; x < targetWidthDots; x++) {
-        if (x < width) {
-          final int idx = (rowOffset + x) * 4;
-          final int r = rgba[idx];
-          final int g = rgba[idx + 1];
-          final int b = rgba[idx + 2];
-          final int a = rgba[idx + 3];
+        // Map target dot column to image pixel column
+        final int srcX = (x * width ~/ targetWidthDots).clamp(0, width - 1);
+        final int idx = (rowOffset + srcX) * 4;
+        final int r = rgba[idx];
+        final int g = rgba[idx + 1];
+        final int b = rgba[idx + 2];
+        final int a = rgba[idx + 3];
 
           double gray;
           if (a < 255) {
@@ -82,7 +87,6 @@ class RasterizerService {
             final int bitPos = x % 8; // LSB first for Tiny Print hardware
             packedBytes[byteIdx] |= (1 << bitPos);
           }
-        }
       }
     }
 

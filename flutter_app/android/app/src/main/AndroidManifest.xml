@@ -11,7 +11,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
 
     <application
-        android:label="Thermal Printer OS"
+        android:label="Thermi"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

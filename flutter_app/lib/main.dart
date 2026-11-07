@@ -10,6 +10,8 @@ import 'ui/minimal_command_bar.dart';
 import 'ui/receipt_canvas.dart';
 import 'ui/ble_scanner_dialog.dart';
 import 'ui/calendar_sync_dialog.dart';
+import 'ui/settings_dialog.dart';
+import 'ui/onboarding_dialog.dart';
 import 'animations/app_motion.dart';
 
 void main() {
@@ -23,7 +25,7 @@ class ThermalStudioApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Thermal Printer OS',
+      title: 'Thermi',
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: const Color(0xFF050505), // OLED black
@@ -54,6 +56,7 @@ class _ThermalStudioScreenState extends State<ThermalStudioScreen> {
   String? _selectedBlockId;
   bool _isPrinting = false;
   double _printProgress = 0.0;
+  bool _isPreviewMode = false;
 
   final List<ReceiptBlock> _blocks = [];
 
@@ -61,6 +64,9 @@ class _ThermalStudioScreenState extends State<ThermalStudioScreen> {
   void initState() {
     super.initState();
     _loadDefaultTemplate();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkOnboarding();
+    });
 
     _bleService.progressStream.listen((progress) {
       if (mounted) {
@@ -77,13 +83,23 @@ class _ThermalStudioScreenState extends State<ThermalStudioScreen> {
     });
   }
 
+  Future<void> _checkOnboarding() async {
+    final shouldShow = await OnboardingDialog.shouldShow();
+    if (shouldShow && mounted) {
+      showDialog(
+        context: context,
+        builder: (_) => const OnboardingDialog(),
+      );
+    }
+  }
+
   void _loadDefaultTemplate() {
     _blocks.clear();
     _blocks.addAll([
       HeaderBlock(
         id: 'hdr_1',
-        title: 'THERMAL PRINTER OS',
-        subtitle: 'DAILY AGENDA & FOCUS',
+        title: 'THERMI OS',
+        subtitle: 'EXECUTIVE AGENDA & FOCUS',
         dateStr: DateTime.now().toString().split(' ')[0],
         metaLeft: 'MD. ZARIF AZFAR',
         metaRight: 'STATUS: ACTIVE',
@@ -109,10 +125,11 @@ class _ThermalStudioScreenState extends State<ThermalStudioScreen> {
       GapBlock(id: 'gap_3', height: 12),
       TodoListBlock(
         id: 'td_1',
-        title: 'ACTION CHECKLIST',
+        title: 'ACTION PROTOCOL',
         items: [
-          TodoItem(id: 't1', text: 'Verify thermal print head saturation', isHighPriority: true),
-          TodoItem(id: 't2', text: 'Calibrate Bluetooth LE pacing (50ms)'),
+          TodoItem(id: 't1', text: 'Thermal print head saturation test', isHighPriority: true),
+          TodoItem(id: 't2', text: 'Calibrate Bluetooth LE pacing (50ms)', isHighPriority: true),
+          TodoItem(id: 't3', text: 'Verify responsive edge-to-edge canvas width'),
         ],
       ),
       GapBlock(id: 'gap_4', height: 16),
@@ -136,11 +153,11 @@ class _ThermalStudioScreenState extends State<ThermalStudioScreen> {
           _blocks.addAll([
             HeaderBlock(
               id: 'hdr_exp',
-              title: 'EXPENSE RECEIPT',
-              subtitle: 'DAILY FINANCIAL LOG',
+              title: 'THERMI OS • FINANCIAL LEDGER',
+              subtitle: 'EXECUTIVE AUDIT & LOG',
               dateStr: today,
               metaLeft: 'MD. ZARIF AZFAR',
-              metaRight: 'STATUS: PAID',
+              metaRight: 'AUDIT: VERIFIED',
             ),
             GapBlock(id: 'gap_e1', height: 12),
             ExpenseBlock(
@@ -160,7 +177,7 @@ class _ThermalStudioScreenState extends State<ThermalStudioScreen> {
             GapBlock(id: 'gap_e2', height: 12),
             TextBlock(
               id: 'txt_sign',
-              text: 'Verified & Logged by MD. ZARIF AZFAR.\nKeep receipt for monthly accounts.',
+              text: 'Audited & Logged by MD. ZARIF AZFAR.\nKeep receipt for monthly accounts.',
               fontSize: 10,
               align: TextAlign.center,
             ),
@@ -174,8 +191,8 @@ class _ThermalStudioScreenState extends State<ThermalStudioScreen> {
           _blocks.addAll([
             HeaderBlock(
               id: 'hdr_not',
-              title: 'QUICK NOTES & MEMO',
-              subtitle: 'BRAIN DUMP & IDEAS',
+              title: 'THERMI OS • EXECUTIVE DISPATCH',
+              subtitle: 'TECHNICAL BRIEFING & MEMO',
               dateStr: today,
               metaLeft: 'AUTHOR: MD. ZARIF AZFAR',
               metaRight: 'CONFIDENTIAL',
@@ -203,8 +220,8 @@ class _ThermalStudioScreenState extends State<ThermalStudioScreen> {
           _blocks.addAll([
             HeaderBlock(
               id: 'hdr_td',
-              title: 'PRIORITY CHECKLIST',
-              subtitle: 'ACTION ITEMS & EXECUTION',
+              title: 'THERMI OS • ACTION PROTOCOL',
+              subtitle: 'HIGH IMPACT EXECUTION',
               dateStr: today,
               metaLeft: 'MD. ZARIF AZFAR',
               metaRight: 'PRIORITY: HIGH',
@@ -230,8 +247,8 @@ class _ThermalStudioScreenState extends State<ThermalStudioScreen> {
           _blocks.addAll([
             HeaderBlock(
               id: 'hdr_imp',
-              title: 'SYSTEM MEMORANDUM',
-              subtitle: 'OFFICIAL NOTIFICATION',
+              title: 'THERMI OS • URGENT DIRECTIVE',
+              subtitle: 'OFFICIAL SYSTEM NOTIFICATION',
               dateStr: today,
               metaLeft: 'MD. ZARIF AZFAR',
               metaRight: 'LEVEL 1 ALERT',
@@ -558,10 +575,85 @@ class _ThermalStudioScreenState extends State<ThermalStudioScreen> {
                   onOpenCalendar: _handleSyncGoogleCalendar,
                   onSelectTemplate: _loadTemplate,
                   onStartBlank: () => _loadTemplate('blank'),
+                  isPreviewMode: _isPreviewMode,
+                  onTogglePreview: () => setState(() => _isPreviewMode = !_isPreviewMode),
+                  onOpenSettings: () {
+                    showDialog(
+                      context: context,
+                      builder: (_) => SettingsDialog(
+                        paperWidth: _paperWidth,
+                        onPaperWidthChange: (w) => setState(() => _paperWidth = w),
+                        fontFamily: _fontFamily,
+                        onFontFamilyChange: (f) => setState(() => _fontFamily = f),
+                        onReplayOnboarding: () {
+                          showDialog(
+                            context: context,
+                            builder: (_) => const OnboardingDialog(),
+                          );
+                        },
+                      ),
+                    );
+                  },
                 ),
 
-                // Tactile Template Block Drops
-                MinimalCommandBar(onAddBlock: _handleAddBlock),
+                // Command bar in edit mode OR Preview mode toolbar
+                if (!_isPreviewMode)
+                  MinimalCommandBar(onAddBlock: _handleAddBlock)
+                else
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF121215),
+                      border: Border(bottom: BorderSide(color: Color(0xFF27272A))),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.visibility_rounded, size: 13, color: Color(0xFFF59E0B)),
+                            SizedBox(width: 5),
+                            Text(
+                              'PREVIEW MODE • True Thermal Output',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white70,
+                                letterSpacing: 0.2,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            TextButton.icon(
+                              onPressed: () => setState(() => _isPreviewMode = false),
+                              icon: const Icon(Icons.edit_note_rounded, size: 13),
+                              label: const Text('Edit', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+                              style: TextButton.styleFrom(
+                                visualDensity: VisualDensity.compact,
+                                foregroundColor: Colors.white70,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            ElevatedButton.icon(
+                              onPressed: _handlePrint,
+                              icon: const Icon(Icons.print_rounded, size: 12),
+                              label: const Text('Print Now', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+                              style: ElevatedButton.styleFrom(
+                                visualDensity: VisualDensity.compact,
+                                backgroundColor: const Color(0xFFF59E0B),
+                                foregroundColor: const Color(0xFF09090B),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
 
                 // Live WYSIWYG Receipt Paper Canvas
                 Expanded(
@@ -580,6 +672,7 @@ class _ThermalStudioScreenState extends State<ThermalStudioScreen> {
                         onPickImage: _handlePickImage,
                         onAddEventToSchedule: () {},
                         onAddTaskToTodo: () {},
+                        isPreviewMode: _isPreviewMode,
                       ),
 
                       // Streaming progress overlay

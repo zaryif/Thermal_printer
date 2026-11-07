@@ -16,6 +16,7 @@ class ReceiptCanvas extends StatelessWidget {
   final Function(ImageBlock) onPickImage;
   final VoidCallback onAddEventToSchedule;
   final VoidCallback onAddTaskToTodo;
+  final bool isPreviewMode;
 
   const ReceiptCanvas({
     super.key,
@@ -31,6 +32,7 @@ class ReceiptCanvas extends StatelessWidget {
     required this.onPickImage,
     required this.onAddEventToSchedule,
     required this.onAddTaskToTodo,
+    this.isPreviewMode = false,
   });
 
   static const List<Map<String, String>> curatedQuotes = [
@@ -139,55 +141,57 @@ class ReceiptCanvas extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double maxPaperWidth = paperWidth == PaperWidth.mm58 ? 384.0 : 576.0;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Fits screen width seamlessly without horizontal scrolling
+        final double maxAvailable = constraints.maxWidth - 20;
+        final double targetWidth = paperWidth == PaperWidth.mm58 ? 360.0 : 420.0;
+        final double displayWidth = targetWidth > maxAvailable && maxAvailable > 200 ? maxAvailable : targetWidth;
 
-    return Center(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-        physics: const BouncingScrollPhysics(),
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          physics: const BouncingScrollPhysics(),
-          child: Column(
-            children: [
-              // Top paper roll visual feed dispenser
-              Container(
-                width: maxPaperWidth,
-                height: 10,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF18181B),
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
-                  border: Border.all(color: const Color(0xFF27272A)),
-                ),
-                child: Center(
-                  child: Container(
-                    width: 120,
-                    height: 3,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF09090B),
-                      borderRadius: BorderRadius.circular(2),
+        return Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              children: [
+                // Top paper roll visual feed dispenser
+                Container(
+                  width: displayWidth,
+                  height: 10,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF18181B),
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+                    border: Border.all(color: const Color(0xFF27272A)),
+                  ),
+                  child: Center(
+                    child: Container(
+                      width: 120,
+                      height: 3,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF09090B),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
                     ),
                   ),
                 ),
-              ),
 
-              // Live RepaintBoundary: Captured directly to monochrome bitmap for printing
-              RepaintBoundary(
-                key: receiptKey,
-                child: Container(
-                  width: maxPaperWidth,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFAFAF9), // Off-white thermal stock
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.45),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
-                      ),
-                    ],
-                  ),
-                  child: Column(
+                // Live RepaintBoundary: Captured directly to monochrome bitmap for printing
+                RepaintBoundary(
+                  key: receiptKey,
+                  child: Container(
+                    width: displayWidth,
+                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 22),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFAFAF9), // Off-white thermal stock
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.45),
+                          blurRadius: 20,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
+                    ),
+                    child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                     if (blocks.isEmpty)
@@ -217,10 +221,10 @@ class ReceiptCanvas extends StatelessWidget {
                       ...blocks.asMap().entries.map((entry) {
                         final int index = entry.key;
                         final ReceiptBlock block = entry.value;
-                        final bool isSelected = block.id == selectedBlockId;
+                        final bool isSelected = !isPreviewMode && block.id == selectedBlockId;
 
                         return GestureDetector(
-                          onTap: () => onSelectBlock(block.id),
+                          onTap: isPreviewMode ? null : () => onSelectBlock(block.id),
                           child: Container(
                             margin: const EdgeInsets.symmetric(vertical: 4),
                             padding: const EdgeInsets.all(4),
@@ -311,7 +315,7 @@ class ReceiptCanvas extends StatelessWidget {
 
             // Bottom zigzag tear-off effect
             Container(
-              width: maxPaperWidth,
+              width: displayWidth,
               height: 12,
               decoration: const BoxDecoration(
                 color: Color(0xFFF0F0ED),
@@ -319,7 +323,7 @@ class ReceiptCanvas extends StatelessWidget {
               ),
               child: Center(
                 child: Text(
-                  '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',
+                  '- - - - - - - - - - - - ✂ - - - - - - - - - - - -',
                   style: getBaseTextStyle(fontSize: 10, color: Colors.grey.shade500),
                   overflow: TextOverflow.clip,
                 ),
@@ -327,8 +331,9 @@ class ReceiptCanvas extends StatelessWidget {
             ),
           ],
         ),
-        ),
       ),
+    );
+      },
     );
   }
 

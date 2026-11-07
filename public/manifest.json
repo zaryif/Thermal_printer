@@ -1,7 +1,7 @@
 {
-  "name": "Thermal Print Studio",
-  "short_name": "ThermalStudio",
-  "description": "Professional Thermal Receipt & Schedule Designer for Bluetooth Thermal Printers",
+  "name": "Thermi - Your Thermal Printer OS",
+  "short_name": "Thermi",
+  "description": "Your Thermal Printer Solution - Professional Thermal Receipt, Agenda & Document Studio",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0f172a",
