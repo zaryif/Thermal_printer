@@ -11,7 +11,8 @@ class Navbar extends StatelessWidget {
   final ThermalBleService bleService;
   final VoidCallback onOpenBleDialog;
   final VoidCallback onOpenCalendar;
-  final VoidCallback onResetTemplate;
+  final Function(String) onSelectTemplate;
+  final VoidCallback onStartBlank;
 
   const Navbar({
     super.key,
@@ -22,7 +23,8 @@ class Navbar extends StatelessWidget {
     required this.bleService,
     required this.onOpenBleDialog,
     required this.onOpenCalendar,
-    required this.onResetTemplate,
+    required this.onSelectTemplate,
+    required this.onStartBlank,
   });
 
   @override
@@ -90,10 +92,35 @@ class Navbar extends StatelessWidget {
                 ],
               ),
 
-              // Action Pills (BLE + Calendar + New)
+              // Action Pills (BLE + Calendar + Blank)
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  // Start From Blank Quick Button
+                  TactilePressWidget(
+                    onTap: onStartBlank,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF18181B),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: const Color(0xFF27272A)),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.note_add_outlined, size: 13, color: Colors.white70),
+                          SizedBox(width: 4),
+                          Text(
+                            'Blank',
+                            style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Colors.white70),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+
                   // Google Calendar Sync
                   TactilePressWidget(
                     onTap: onOpenCalendar,
@@ -145,7 +172,7 @@ class Navbar extends StatelessWidget {
                           Text(
                             bleService.isConnected
                                 ? (bleService.deviceName ?? 'Ready')
-                                : 'Connect BLE',
+                                : 'Connect',
                             style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
@@ -156,21 +183,6 @@ class Navbar extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 6),
-
-                  // Reset / New Receipt
-                  TactilePressWidget(
-                    onTap: onResetTemplate,
-                    child: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF18181B),
-                        borderRadius: BorderRadius.circular(6),
-                        border: Border.all(color: const Color(0xFF27272A)),
-                      ),
-                      child: const Icon(Icons.refresh, size: 14, color: Colors.white54),
-                    ),
-                  ),
                 ],
               ),
             ],
@@ -178,7 +190,7 @@ class Navbar extends StatelessWidget {
 
           const SizedBox(height: 6),
 
-          // Row 2: Paper Size Toggle & Font Picker
+          // Row 2: Paper Size Toggle, Template Selector & Font Picker
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -194,16 +206,46 @@ class Navbar extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     _buildSegmentButton(
-                      label: '58mm Roll',
+                      label: '58mm',
                       isSelected: paperWidth == PaperWidth.mm58,
                       onTap: () => onPaperWidthChange(PaperWidth.mm58),
                     ),
                     _buildSegmentButton(
-                      label: '80mm Roll',
+                      label: '80mm',
                       isSelected: paperWidth == PaperWidth.mm80,
                       onTap: () => onPaperWidthChange(PaperWidth.mm80),
                     ),
                   ],
+                ),
+              ),
+
+              // Templates Selector Dropdown
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFF18181B),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: const Color(0xFF27272A)),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: null,
+                    hint: const Text('Templates ▾', style: TextStyle(fontSize: 11, color: Color(0xFFF59E0B), fontWeight: FontWeight.bold)),
+                    isDense: true,
+                    dropdownColor: const Color(0xFF18181B),
+                    icon: const Icon(Icons.arrow_drop_down, color: Color(0xFFF59E0B), size: 16),
+                    onChanged: (val) {
+                      if (val != null) onSelectTemplate(val);
+                    },
+                    items: const [
+                      DropdownMenuItem(value: 'blank', child: Text('📄 Start from Blank')),
+                      DropdownMenuItem(value: 'agenda', child: Text('📅 Daily Focus & Agenda')),
+                      DropdownMenuItem(value: 'expense', child: Text('💰 Daily Expenses & Bill')),
+                      DropdownMenuItem(value: 'notes', child: Text('📝 Quick Notes & Memo')),
+                      DropdownMenuItem(value: 'todo', child: Text('✅ Priority Checklist')),
+                      DropdownMenuItem(value: 'important', child: Text('⚠️ Important Notice')),
+                    ],
+                  ),
                 ),
               ),
 
@@ -252,7 +294,7 @@ class Navbar extends StatelessWidget {
       child: AnimatedContainer(
         duration: AppMotion.quickFeedback,
         curve: AppMotion.enterCurve,
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
           color: isSelected ? const Color(0xFFF59E0B) : Colors.transparent,
           borderRadius: BorderRadius.circular(4),

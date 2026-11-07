@@ -84,7 +84,7 @@ class _ThermalStudioScreenState extends State<ThermalStudioScreen> {
       HeaderBlock(
         id: 'hdr_1',
         title: 'THERMAL PRINTER OS',
-        subtitle: 'DAILY AGENDA & NOTES',
+        subtitle: 'DAILY AGENDA & FOCUS',
         dateStr: DateTime.now().toString().split(' ')[0],
         metaLeft: 'MD. ZARIF AZFAR',
         metaRight: 'STATUS: ACTIVE',
@@ -120,6 +120,149 @@ class _ThermalStudioScreenState extends State<ThermalStudioScreen> {
       DividerBlock(id: 'div_1', style: 'cut'),
       FeedBlock(id: 'fd_1', lines: 3),
     ]);
+  }
+
+  void _loadTemplate(String templateName) {
+    setState(() {
+      _blocks.clear();
+      _selectedBlockId = null;
+      final today = DateTime.now().toString().split(' ')[0];
+
+      switch (templateName) {
+        case 'blank':
+          // Clean empty paper roll
+          break;
+
+        case 'expense':
+          _blocks.addAll([
+            HeaderBlock(
+              id: 'hdr_exp',
+              title: 'EXPENSE RECEIPT',
+              subtitle: 'DAILY FINANCIAL LOG',
+              dateStr: today,
+              metaLeft: 'MD. ZARIF AZFAR',
+              metaRight: 'STATUS: PAID',
+            ),
+            GapBlock(id: 'gap_e1', height: 12),
+            ExpenseBlock(
+              id: 'exp_1',
+              title: 'PURCHASE ITEMIZED LOG',
+              currency: '\$',
+              date: today,
+              paymentMethod: 'CASH / CARD',
+              items: [
+                ExpenseItem(id: 'e1', name: 'Morning Espresso & Croissant', category: 'Food', amount: 5.25),
+                ExpenseItem(id: 'e2', name: 'Metro Commute Transit', category: 'Travel', amount: 2.75),
+                ExpenseItem(id: 'e3', name: 'Cloud Server & Domain Sync', category: 'Tech', amount: 14.50),
+                ExpenseItem(id: 'e4', name: 'Thermal Paper Roll Pack (6x)', category: 'Office', amount: 8.90),
+              ],
+              tax: 2.50,
+            ),
+            GapBlock(id: 'gap_e2', height: 12),
+            TextBlock(
+              id: 'txt_sign',
+              text: 'Verified & Logged by MD. ZARIF AZFAR.\nKeep receipt for monthly accounts.',
+              fontSize: 10,
+              align: TextAlign.center,
+            ),
+            GapBlock(id: 'gap_e3', height: 12),
+            DividerBlock(id: 'div_e', style: 'cut'),
+            FeedBlock(id: 'fd_e', lines: 3),
+          ]);
+          break;
+
+        case 'notes':
+          _blocks.addAll([
+            HeaderBlock(
+              id: 'hdr_not',
+              title: 'QUICK NOTES & MEMO',
+              subtitle: 'BRAIN DUMP & IDEAS',
+              dateStr: today,
+              metaLeft: 'AUTHOR: MD. ZARIF AZFAR',
+              metaRight: 'CONFIDENTIAL',
+            ),
+            GapBlock(id: 'gap_n1', height: 12),
+            TextBlock(
+              id: 'txt_n1',
+              text: '1. Verified Tiny Print 0x51 0x78 BLE framing.\n2. Calibrated 50ms chunk delay prevents FIFO overflow.\n3. Floyd-Steinberg error diffusion renders crisp photos.',
+              fontSize: 11,
+            ),
+            GapBlock(id: 'gap_n2', height: 12),
+            QuoteBlock(
+              id: 'qt_n',
+              quote: 'Simplicity is prerequisite for reliability.',
+              author: 'Edsger W. Dijkstra',
+              category: 'Engineering',
+            ),
+            GapBlock(id: 'gap_n3', height: 14),
+            DividerBlock(id: 'div_n', style: 'cut'),
+            FeedBlock(id: 'fd_n', lines: 3),
+          ]);
+          break;
+
+        case 'todo':
+          _blocks.addAll([
+            HeaderBlock(
+              id: 'hdr_td',
+              title: 'PRIORITY CHECKLIST',
+              subtitle: 'ACTION ITEMS & EXECUTION',
+              dateStr: today,
+              metaLeft: 'MD. ZARIF AZFAR',
+              metaRight: 'PRIORITY: HIGH',
+            ),
+            GapBlock(id: 'gap_t1', height: 12),
+            TodoListBlock(
+              id: 'td_main',
+              title: 'HIGH IMPACT TASKS',
+              items: [
+                TodoItem(id: 't1', text: 'Thermal print head saturation test', isHighPriority: true),
+                TodoItem(id: 't2', text: 'Bluetooth Low Energy scanning and auto-reconnect', isHighPriority: true),
+                TodoItem(id: 't3', text: 'Review Data Comm lab report submissions'),
+                TodoItem(id: 't4', text: 'Deploy release to GitHub'),
+              ],
+            ),
+            GapBlock(id: 'gap_t2', height: 14),
+            DividerBlock(id: 'div_t', style: 'cut'),
+            FeedBlock(id: 'fd_t', lines: 3),
+          ]);
+          break;
+
+        case 'important':
+          _blocks.addAll([
+            HeaderBlock(
+              id: 'hdr_imp',
+              title: 'SYSTEM MEMORANDUM',
+              subtitle: 'OFFICIAL NOTIFICATION',
+              dateStr: today,
+              metaLeft: 'MD. ZARIF AZFAR',
+              metaRight: 'LEVEL 1 ALERT',
+            ),
+            GapBlock(id: 'gap_i1', height: 12),
+            ImportantBlock(
+              id: 'imp_1',
+              tag: 'CRITICAL / URGENT',
+              title: 'LABORATORY SUBMISSION CUTOFF',
+              content: 'All Data Communication engineering laboratory reports (DC_Z_LT01 through LT04) must be bundled with 100% rubrics before the midnight deadline.',
+              footer: 'VERIFIED & SIGNED BY MD. ZARIF AZFAR',
+            ),
+            GapBlock(id: 'gap_i2', height: 12),
+            QrCodeBlock(
+              id: 'qr_imp',
+              data: 'https://github.com/zaryif/Thermal_printer',
+              label: 'SCAN FOR SYSTEM REPO',
+            ),
+            GapBlock(id: 'gap_i3', height: 12),
+            DividerBlock(id: 'div_imp', style: 'cut'),
+            FeedBlock(id: 'fd_imp', lines: 3),
+          ]);
+          break;
+
+        case 'agenda':
+        default:
+          _loadDefaultTemplate();
+          break;
+      }
+    });
   }
 
   Future<void> _handlePickImage(ImageBlock block) async {
@@ -161,6 +304,25 @@ class _ThermalStudioScreenState extends State<ThermalStudioScreen> {
     ReceiptBlock newBlock;
 
     switch (type) {
+      case 'expense':
+        newBlock = ExpenseBlock(
+          id: newId,
+          title: 'EXPENSE ITEMIZATION',
+          date: DateTime.now().toString().split(' ')[0],
+          items: [
+            ExpenseItem(id: 'e_${DateTime.now().millisecondsSinceEpoch}', name: 'Expense Item', category: 'General', amount: 5.00),
+          ],
+        );
+        break;
+      case 'important':
+        newBlock = ImportantBlock(
+          id: newId,
+          tag: 'CRITICAL NOTICE',
+          title: 'IMPORTANT MEMO',
+          content: 'Tap to type critical instructions or high-priority notes here.',
+          footer: 'VERIFIED BY MD. ZARIF AZFAR',
+        );
+        break;
       case 'photo':
         newBlock = ImageBlock(
           id: newId,
@@ -403,7 +565,8 @@ class _ThermalStudioScreenState extends State<ThermalStudioScreen> {
                     );
                   },
                   onOpenCalendar: _handleSyncGoogleCalendar,
-                  onResetTemplate: () => setState(_loadDefaultTemplate),
+                  onSelectTemplate: _loadTemplate,
+                  onStartBlank: () => _loadTemplate('blank'),
                 ),
 
                 // Tactile Template Block Drops

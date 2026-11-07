@@ -607,6 +607,236 @@ class ReceiptCanvas extends StatelessWidget {
       );
     }
 
+    if (block is ExpenseBlock) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: TextFormField(
+                  initialValue: block.title,
+                  style: getBaseTextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  decoration: const InputDecoration(isDense: true, border: InputBorder.none),
+                  onChanged: (val) {
+                    block.title = val;
+                    onUpdateBlock(block);
+                  },
+                ),
+              ),
+              SizedBox(
+                width: 90,
+                child: TextFormField(
+                  initialValue: block.date,
+                  textAlign: TextAlign.right,
+                  style: getBaseTextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Colors.grey.shade700),
+                  decoration: const InputDecoration(isDense: true, border: InputBorder.none),
+                  onChanged: (val) {
+                    block.date = val;
+                    onUpdateBlock(block);
+                  },
+                ),
+              ),
+            ],
+          ),
+          const Divider(thickness: 1, color: Colors.black87),
+          ...block.items.map((item) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 3),
+              child: Row(
+                children: [
+                  Expanded(
+                    flex: 4,
+                    child: TextFormField(
+                      initialValue: item.name,
+                      style: getBaseTextStyle(fontSize: 11),
+                      decoration: const InputDecoration(
+                        isDense: true,
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                      onChanged: (val) {
+                        item.name = val;
+                        onUpdateBlock(block);
+                      },
+                    ),
+                  ),
+                  SizedBox(
+                    width: 60,
+                    child: TextFormField(
+                      initialValue: item.category,
+                      textAlign: TextAlign.center,
+                      style: getBaseTextStyle(fontSize: 9, color: Colors.grey.shade600),
+                      decoration: const InputDecoration(
+                        isDense: true,
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                      onChanged: (val) {
+                        item.category = val;
+                        onUpdateBlock(block);
+                      },
+                    ),
+                  ),
+                  SizedBox(
+                    width: 55,
+                    child: TextFormField(
+                      initialValue: '${block.currency}${item.amount.toStringAsFixed(2)}',
+                      textAlign: TextAlign.right,
+                      style: getBaseTextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+                      decoration: const InputDecoration(
+                        isDense: true,
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                      onChanged: (val) {
+                        final clean = val.replaceAll(block.currency, '').trim();
+                        final parsed = double.tryParse(clean);
+                        if (parsed != null) {
+                          item.amount = parsed;
+                          onUpdateBlock(block);
+                        }
+                      },
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () {
+                      block.items.removeWhere((i) => i.id == item.id);
+                      onUpdateBlock(block);
+                    },
+                    child: const Padding(
+                      padding: EdgeInsets.only(left: 4),
+                      child: Icon(Icons.close, size: 12, color: Colors.black38),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              onPressed: () {
+                block.items.add(
+                  ExpenseItem(
+                    id: DateTime.now().millisecondsSinceEpoch.toString(),
+                    name: 'Expense Item',
+                    category: 'General',
+                    amount: 5.00,
+                  ),
+                );
+                onUpdateBlock(block);
+              },
+              icon: const Icon(Icons.add, size: 14, color: Colors.black54),
+              label: Text('+ Add Item', style: getBaseTextStyle(fontSize: 10, color: Colors.black54)),
+              style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: const Size(50, 24)),
+            ),
+          ),
+          const Divider(thickness: 1.5, color: Colors.black),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('SUBTOTAL', style: getBaseTextStyle(fontSize: 10, color: Colors.grey.shade700)),
+              Text('${block.currency}${block.subtotal.toStringAsFixed(2)}',
+                  style: getBaseTextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+            ],
+          ),
+          const SizedBox(height: 2),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('TOTAL EXPENSES', style: getBaseTextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+              Text('${block.currency}${block.total.toStringAsFixed(2)}',
+                  style: getBaseTextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+            ],
+          ),
+        ],
+      );
+    }
+
+    if (block is ImportantBlock) {
+      return Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.black,
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    initialValue: block.tag,
+                    style: getBaseTextStyle(
+                      fontSize: 9,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFFF59E0B),
+                    ),
+                    decoration: const InputDecoration(isDense: true, border: InputBorder.none),
+                    onChanged: (val) {
+                      block.tag = val;
+                      onUpdateBlock(block);
+                    },
+                  ),
+                ),
+                const Icon(Icons.warning_amber_rounded, size: 14, color: Color(0xFFF59E0B)),
+              ],
+            ),
+            const SizedBox(height: 2),
+            TextFormField(
+              initialValue: block.title,
+              maxLines: null,
+              style: getBaseTextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+                height: 1.25,
+              ),
+              decoration: const InputDecoration(isDense: true, border: InputBorder.none),
+              onChanged: (val) {
+                block.title = val;
+                onUpdateBlock(block);
+              },
+            ),
+            const Divider(color: Colors.white24, thickness: 1, height: 8),
+            TextFormField(
+              initialValue: block.content,
+              maxLines: null,
+              keyboardType: TextInputType.multiline,
+              style: getBaseTextStyle(
+                fontSize: 11,
+                color: Colors.white,
+                height: 1.4,
+              ),
+              decoration: const InputDecoration(isDense: true, border: InputBorder.none),
+              onChanged: (val) {
+                block.content = val;
+                onUpdateBlock(block);
+              },
+            ),
+            const SizedBox(height: 4),
+            TextFormField(
+              initialValue: block.footer,
+              style: getBaseTextStyle(
+                fontSize: 8,
+                fontWeight: FontWeight.bold,
+                color: Colors.white54,
+              ),
+              decoration: const InputDecoration(isDense: true, border: InputBorder.none),
+              onChanged: (val) {
+                block.footer = val;
+                onUpdateBlock(block);
+              },
+            ),
+          ],
+        ),
+      );
+    }
+
     if (block is ScheduleBlock) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

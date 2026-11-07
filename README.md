@@ -67,19 +67,61 @@ Reverse-engineered directly from **Tiny Print APK (v1.3.87)** (`com.frogtosea.ti
 
 ---
 
-## 🖨️ Supported Printers
+## 🖨️ Supported Printers & POS Hardware List
 
-### Pocket Bluetooth Printers (Tiny Print / WalkPrint Protocol)
-- **Model X Series**: X5, X5h, X6
-- **Model C Series**: C9, C13, C15, C17, C19, C20
-- **PeriPage / WalkPrint / FunPrint / GB01**
-- **Mini Cat Thermal Printers & Meow Machines**
+Thermal Printer OS works with both reverse-engineered BLE packet protocols (Tiny Print, WalkPrint, PeriPage) and standard ESC/POS hardware:
 
-### Commercial POS & Desktop Printers (ESC/POS Protocol)
-- **Epson POS** (TM-T20, TM-T88 series)
-- **Star Micronics** (TSP100, TSP650)
-- **Munbyn, Rongta, Netum, Xprinter 58mm & 80mm**
-- **Any AirPrint / System Thermal Spooler**
+### 1. Pocket & Mini Thermal Printers (BLE)
+* **Tiny Print / Fun Print / iPrint / LuckJingle / WalkPrint**: Native `0x51 0x78` framing, CRC-8, Level 5 heating pulse (9200µs).
+* **PeriPage**: A6, A9, A9 Pro, A40, A40+
+* **Paperang**: P1, P1S, P2, P2S, P3
+* **Cat & Bear Printers**: C9, C13, C15, C17, C19, C20
+* **MX Series**: MX05, MX06, MX08, MX10
+* **Phomemo**: M02, M02 Pro, T02, D30, M110
+* **Mini Pocket Series**: GB01, GB02, GT01, X5, X6, A8, A31
+
+### 2. Commercial POS & Mobile Receipt Printers (ESC/POS & BLE)
+* **Standard ESC/POS 58mm & 80mm Bluetooth Printers**
+* **MUNBYN Thermal Printers**: ITPP047, IMP001, ITPP130
+* **GOOJPRT**: PT-210, MPT-II, JP-58H, MPT-III
+* **Zjiang**: ZJ-5802, ZJ-5805, ZJ-8250
+* **Netum & Rongta**: 58mm & 80mm Mobile Bluetooth Terminals
+* **Sunmi Handheld POS**: V1, V2, V2 Pro (BLE/SPP)
+* **Epson POS**: TM-T20, TM-T88 series (Bluetooth models)
+* **Star Micronics**: TSP100, TSP650 (Bluetooth models)
+
+---
+
+## 📋 Built-In Preset Templates
+
+Thermal Printer OS includes 6 instant templates selectable from the top navbar:
+
+| Template | Description | Included Blocks |
+| :--- | :--- | :--- |
+| **📄 Start from Blank** | Clean empty thermal paper roll | Pure white canvas ready for custom block drops |
+| **📅 Daily Focus & Agenda** | Complete day planner & Google Calendar | Header, Timetable, Focus Quote, Action Checklist, Tear line |
+| **💰 Daily Expenses & Bill** | Itemized expense log & receipt | Header, Line items, Category chips, Subtotal, Tax, Total, Signature |
+| **📝 Quick Notes & Memo** | Brain dump & developer reminders | Header, Multi-line notes with line-gapping, Inspiring Quote, Cut line |
+| **✅ Priority Checklist** | High & Low impact task matrix | Header, Tasks with checkboxes, HIGH/LOW priority tags, Progress counter |
+| **⚠️ Important Notice** | High-contrast inverted callout | Dark inverted alert banner, Critical memo text, QR verification code |
+
+---
+
+## 🛠️ Minimal Command Dock (Quick Drops)
+
+Add any element anywhere on the paper with 1 tap:
+* **`+ Expense`**: Line-item expense block with auto-calculated total and category tags.
+* **`+ Important`**: Inverted pitch-black high-contrast notification callout.
+* **`+ Note`**: Multi-line transparent text area with generous line-height (`1.45`).
+* **`+ Photo`**: Image uploader with Floyd-Steinberg error diffusion and auto-resize.
+* **`+ Quote`**: Curated motivational quote card with 1-tap `🎲 Shuffle`.
+* **`+ Schedule`**: Time slots with checkboxes and timestamps.
+* **`+ Todo`**: Action checklist items.
+* **`+ Gap`**: Adjustable vertical blank space (8px to 96px).
+* **`+ Header`**: Thermal receipt title, subtitle, date, and left/right metadata.
+* **`+ Line`**: Dashed cut-line with scissor glyph `✂`.
+* **`+ QR Code`**: High-resolution vector QR code.
+* **`+ Table`**: Multi-column tabular receipt data.
 
 ---
 

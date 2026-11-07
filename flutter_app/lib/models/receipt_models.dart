@@ -310,3 +310,83 @@ class GapBlock extends ReceiptBlock {
         'height': height,
       };
 }
+
+class ExpenseItem {
+  String id;
+  String name;
+  String category;
+  double amount;
+
+  ExpenseItem({
+    required this.id,
+    required this.name,
+    this.category = 'General',
+    required this.amount,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'category': category,
+        'amount': amount,
+      };
+}
+
+class ExpenseBlock extends ReceiptBlock {
+  String title;
+  String currency;
+  String date;
+  String paymentMethod;
+  List<ExpenseItem> items;
+  double tax;
+
+  ExpenseBlock({
+    required super.id,
+    this.title = 'DAILY EXPENSE LOG',
+    this.currency = '\$',
+    required this.date,
+    this.paymentMethod = 'CASH / CARD',
+    required this.items,
+    this.tax = 0.0,
+  }) : super(type: 'expense');
+
+  double get subtotal => items.fold(0.0, (sum, item) => sum + item.amount);
+  double get total => subtotal + tax;
+
+  @override
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'type': type,
+        'title': title,
+        'currency': currency,
+        'date': date,
+        'paymentMethod': paymentMethod,
+        'items': items.map((e) => e.toJson()).toList(),
+        'tax': tax,
+      };
+}
+
+class ImportantBlock extends ReceiptBlock {
+  String tag;
+  String title;
+  String content;
+  String footer;
+
+  ImportantBlock({
+    required super.id,
+    this.tag = 'CRITICAL / URGENT',
+    this.title = 'IMPORTANT NOTICE',
+    this.content = 'Must review deliverables before submitting to production.',
+    this.footer = 'VERIFIED BY MD. ZARIF AZFAR',
+  }) : super(type: 'important');
+
+  @override
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'type': type,
+        'tag': tag,
+        'title': title,
+        'content': content,
+        'footer': footer,
+      };
+}
