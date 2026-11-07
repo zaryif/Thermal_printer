@@ -169,12 +169,15 @@ jobs:
             ## Thermal Printer OS Release ${{ steps.vars.outputs.tag }}
 
             ### 🚀 Pure Dart / Flutter Native Architecture
-            - **100% Native Pure Dart:** Replaced webview/Capacitor with native Flutter for high performance, zero latency, and true cross-platform execution (Android, Windows, Linux, macOS).
+            - **Google Calendar & iCal Multi-Sync Modal:** Sleek tabbed interface supporting ⚡ 100% reliable secret iCal link sync (zero-config, no OAuth/SHA-1 setup needed), 🌐 native Google OAuth sign-in with granular scope verification, and 📝 quick plain-text schedule parser.
+            - **Transparent Calendar Diagnostics:** Detailed error reporting and resolution hints for OAuth scopes and Google Cloud SHA-1 fingerprints, replacing silenced failures.
+            - **100% Native Pure Dart:** Built with Flutter for high performance, zero latency, and true cross-platform execution (Android, Windows, Linux, macOS).
             - **Reverse-Engineered Tiny Print Hardware Engine:** Replicated exact Bluetooth Low Energy protocol (`0x51 0x78` header, CRC-8 polynomial 0x07, Deepen energy Level 5 at 9200us pulse, and 50ms chunk pacing).
             - **Unmissable Bottom Print Dock:** Large, prominent tactile master print button with real-time Bluetooth online/offline status and instant pairing.
             - **Photo & Image Upload Engine:** Added gallery/camera photo picker with automatic Floyd-Steinberg dithering and high-contrast thresholding for sharp thermal prints.
+            - **Expense & Budget Tracker:** Itemized receipt block with real-time tax calculation and total computation.
+            - **High-Contrast Important Callout:** Level 1 inverted memorandum box for urgent alerts and instructions.
             - **Motivational Quotes & 1-Tap Shuffle:** Built-in focus quotes from Marcus Aurelius, Steve Jobs, Seneca, etc., with 1-tap quote shuffling.
-            - **Daily Schedule & Google Calendar Sync:** One-tap agenda fetch and schedule receipt generation.
             - **Custom Gap / Spacing Controls:** Dedicated adjustable spacer blocks and ample vertical line-height so text never collides or gets hidden.
             - **Multi-Font Engine:** Mono (POS), Clean (Sans), Editorial (Serif), Retro (Arcade), Typewriter.
 

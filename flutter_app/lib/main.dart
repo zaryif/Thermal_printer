@@ -4,12 +4,12 @@ import 'package:image_picker/image_picker.dart';
 import 'package:image/image.dart' as img;
 import 'models/receipt_models.dart';
 import 'services/bluetooth_service.dart';
-import 'services/google_calendar_service.dart';
 import 'services/rasterizer_service.dart';
 import 'ui/navbar.dart';
 import 'ui/minimal_command_bar.dart';
 import 'ui/receipt_canvas.dart';
 import 'ui/ble_scanner_dialog.dart';
+import 'ui/calendar_sync_dialog.dart';
 import 'animations/app_motion.dart';
 
 void main() {
@@ -47,7 +47,6 @@ class ThermalStudioScreen extends StatefulWidget {
 class _ThermalStudioScreenState extends State<ThermalStudioScreen> {
   final GlobalKey _receiptKey = GlobalKey();
   final ThermalBleService _bleService = ThermalBleService();
-  final GoogleCalendarService _calendarService = GoogleCalendarService();
   final ImagePicker _picker = ImagePicker();
 
   PaperWidth _paperWidth = PaperWidth.mm58;
@@ -430,45 +429,37 @@ class _ThermalStudioScreenState extends State<ThermalStudioScreen> {
   }
 
   Future<void> _handleSyncGoogleCalendar() async {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Syncing Google Calendar...'),
-        duration: Duration(seconds: 2),
+    showDialog(
+      context: context,
+      builder: (_) => CalendarSyncDialog(
+        onImportEvents: (events, source) {
+          setState(() {
+            _blocks.removeWhere((b) => b is ScheduleBlock);
+            int insertIndex = _blocks.indexWhere((b) => b is HeaderBlock);
+            if (insertIndex != -1) {
+              insertIndex = insertIndex + 1;
+              if (insertIndex < _blocks.length && _blocks[insertIndex] is GapBlock) {
+                insertIndex = insertIndex + 1;
+              }
+            } else {
+              insertIndex = 0;
+            }
+
+            _blocks.insert(
+              insertIndex,
+              ScheduleBlock(
+                id: 'cal_${DateTime.now().millisecondsSinceEpoch}',
+                title: source == 'Google Calendar'
+                    ? 'GOOGLE CALENDAR AGENDA'
+                    : (source == 'iCal Link' ? 'CALENDAR AGENDA' : 'DAILY SCHEDULE'),
+                date: DateTime.now().toString().split(' ')[0],
+                items: events,
+              ),
+            );
+          });
+        },
       ),
     );
-
-    final events = await _calendarService.fetchTodayEvents();
-    if (events.isNotEmpty) {
-      setState(() {
-        _blocks.removeWhere((b) => b is ScheduleBlock);
-        _blocks.insert(
-          1,
-          ScheduleBlock(
-            id: 'cal_${DateTime.now().millisecondsSinceEpoch}',
-            title: 'GOOGLE CALENDAR AGENDA',
-            date: DateTime.now().toString().split(' ')[0],
-            items: events,
-          ),
-        );
-      });
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Imported ${events.length} calendar events!'),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
-    } else {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Check Google Account Sign-In'),
-            backgroundColor: Colors.orange,
-          ),
-        );
-      }
-    }
   }
 
   Future<void> _handlePrint() async {

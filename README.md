@@ -26,14 +26,15 @@ It gives you a direct, tactile typewriter experience: click and edit directly on
 
 ## 🚀 Key Features
 
-### 📅 1. Google Calendar Integration
-- **Direct 1-Click Google Sign-In**: Authenticate via Google Identity Services (OAuth 2.0) to fetch live events from your primary Google Calendar.
+### 📅 1. Google Calendar & iCal Integration
+- **⚡ 100% Reliable Secret iCal Link (Recommended)**: Universal zero-configuration calendar sync. Paste your secret iCal link from Google Calendar (`calendar.google.com -> Settings -> Integrate Calendar -> Secret address in iCal format`), Apple iCloud Calendar, or Outlook. Works on Android APK, macOS, Windows, Linux, and Web with **zero API keys, zero Google Cloud setup, and zero SHA-1 requirements**. Persisted automatically in local storage.
+- **🌐 Direct Google Sign-In (OAuth 2.0)**: Authenticate natively with Google Sign-In with full scope verification (`calendar.readonly`) and live error diagnostics.
+- **📝 Quick Plain-Text Paste**: Type or paste schedule items (e.g. `09:00 AM Daily Standup`, `14:00 Dev Sprint`) for instant conversion to receipt items.
 - **Automatic Smart Categorization**: Events are intelligently tagged into thematic color badges on your agenda:
   - 🕌 **Prayers**: Fajr, Dhuhr, Jummah, Asr, Maghrib, Isha
   - 📚 **Study & Exams**: Midterms, Quizzes, Lab Sprint, Code Practice
   - 💼 **Meetings & Work**: Standup, Client Review, Zoom/Meet Sync
   - 🏃 **Health & Personal**: Workout, Lunch, Break, Movement
-- **Offline `.ICS` Import & Quick Paste**: Drag and drop any exported `.ics` file (from Google Calendar, Apple Calendar, or Outlook) or paste a plain text agenda—no API key required!
 - **Receipt Extras**: Add a centered daily motivational quote, priority task checkboxes `[ ]`, and a high-resolution QR code linking directly to Google Calendar.
 
 ---
